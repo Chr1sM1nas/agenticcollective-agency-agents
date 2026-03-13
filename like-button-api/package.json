@@ -1,0 +1,28 @@
+{
+  "name": "like-button-api",
+  "version": "1.0.0",
+  "description": "Security-hardened embeddable Like button API with legal evidence capabilities",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test src/tests/*.test.js",
+    "test:security": "node --test src/tests/security.test.js",
+    "test:audit": "node --test src/tests/auditLog.test.js",
+    "test:crypto": "node --test src/tests/crypto.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
