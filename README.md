@@ -24,6 +24,30 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 
 ## ⚡ Quick Start
 
+### 🖥️ Agent Dashboard (New!)
+
+Browse all 98 agents visually — search, filter by division, read full agent specs, and copy ready-to-use activation prompts:
+
+```bash
+# Generate the dashboard (requires Python 3)
+python3 scripts/generate-dashboard.py
+
+# Then open dashboard.html in your browser
+```
+
+Or use the CLI to explore agents from your terminal:
+
+```bash
+./run-agent.sh dashboard          # generate & open in browser
+./run-agent.sh list               # list all agents
+./run-agent.sh list engineering   # filter by division
+./run-agent.sh search "data"      # search by keyword
+./run-agent.sh info "UX Researcher"   # full details for one agent
+./run-agent.sh activate "Frontend Developer"  # get activation prompts
+```
+
+---
+
 ### Option 1: Use with Claude Code (Recommended)
 
 ```bash
