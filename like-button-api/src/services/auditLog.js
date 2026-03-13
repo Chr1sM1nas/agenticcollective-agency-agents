@@ -112,7 +112,6 @@ function verifyChain() {
     }
 
     // 2. Verify HMAC seal
-    const expectedSeal = cryptoSvc.hmacSign(entry.entry_hash, config.auditLog.secret);
     const sealValid = cryptoSvc.hmacVerify(entry.entry_hash, entry.seal, config.auditLog.secret);
     if (!sealValid) {
       return {

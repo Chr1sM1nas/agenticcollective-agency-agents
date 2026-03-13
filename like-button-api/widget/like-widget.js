@@ -109,7 +109,13 @@
       ua:         (nav.userAgent || '').slice(0, 200),
       lang:       nav.language || '',
       langs:      (nav.languages || []).join(','),
-      tz:         Intl && Intl.DateTimeFormat ? Intl.DateTimeFormat().resolvedOptions().timeZone : '',
+      tz:         (function () {
+        try {
+          return Intl && Intl.DateTimeFormat
+            ? Intl.DateTimeFormat().resolvedOptions().timeZone
+            : '';
+        } catch (e) { return ''; }
+      }()),
       cores:      nav.hardwareConcurrency || 0,
       mem:        nav.deviceMemory || 0,
       screen:     screen.width + 'x' + screen.height + 'x' + screen.colorDepth,
@@ -194,16 +200,20 @@
   // ── API calls ──────────────────────────────────────────────────────────────
 
   function buildSignedHeaders(method, path, bodyStr, nonce, timestamp, cb) {
+    // NOTE: Full HMAC-SHA256 request signing requires the SIGNING_SECRET to be
+    // present on the client – which is not safe for browser-side code.
+    // In a production setup, exchange the API key for a short-lived signed
+    // token from your own backend and include that token in the Authorization
+    // header instead of embedding a raw signing secret here.
+    // The server-side signature verification middleware (verifySignedRequest) is
+    // available for server-to-server or native-app clients that can safely hold
+    // the signing secret.
     var headers = {
       'Content-Type': 'application/json',
       'X-Api-Key': API_KEY,
       'X-Timestamp': timestamp,
       'X-Nonce': nonce,
     };
-    // Derive signing secret from the API key (client-side signing)
-    // The server verifies with its own SIGNING_SECRET.
-    // In a production setup the widget would receive a short-lived signed token
-    // from your backend rather than embedding the signing secret here.
     cb(headers);
   }
 
