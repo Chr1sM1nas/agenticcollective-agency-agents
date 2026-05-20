@@ -15,15 +15,15 @@ const filters = [
 
 export const FeedFilter: React.FC<FeedFilterProps> = ({ activeFilter, onFilterChange }) => {
   return (
-    <div className="flex gap-1 bg-slate-800 rounded-xl p-1 overflow-x-auto">
+    <div className="flex gap-1 fz-card p-1.5 overflow-x-auto">
       {filters.map(f => (
         <button
           key={f.id}
           onClick={() => onFilterChange(f.id)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
             activeFilter === f.id
-              ? 'bg-green-500 text-white'
-              : 'text-slate-400 hover:text-white hover:bg-slate-700'
+              ? 'bg-cyan-400 text-slate-950'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
           }`}
         >
           {f.label}

@@ -43,7 +43,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, icon, label, onTo
     <button
       onClick={() => void handleClick()}
       disabled={loading}
-      className="flex-1 min-w-0 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm transition-colors disabled:opacity-50"
+      className="flex-1 min-w-0 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-white text-sm transition-colors disabled:opacity-50"
     >
       {loading ? <LoadingSpinner size="sm" /> : <span className="text-lg">{icon}</span>}
       <span className="hidden sm:inline truncate">{label}</span>
@@ -57,7 +57,7 @@ interface SocialAuthButtonsProps {
 
 export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ onToggleEmail }) => {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 flex-wrap">
       <SocialButton provider="Google" icon="G" label="Google" />
       <SocialButton provider="Apple" icon="🍎" label="Apple" />
       <SocialButton provider="Facebook" icon="f" label="Facebook" />

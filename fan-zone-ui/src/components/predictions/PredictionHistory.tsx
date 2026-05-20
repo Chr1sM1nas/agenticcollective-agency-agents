@@ -6,8 +6,8 @@ interface PredictionHistoryProps {
 }
 
 const statusStyles: Record<Prediction['status'], string> = {
-  pending: 'bg-yellow-900/40 text-yellow-400',
-  correct: 'bg-green-900/40 text-green-400',
+  pending: 'bg-amber-900/40 text-amber-300',
+  correct: 'bg-cyan-900/40 text-cyan-300',
   incorrect: 'bg-red-900/40 text-red-400',
 };
 
@@ -40,7 +40,7 @@ export const PredictionHistory: React.FC<PredictionHistoryProps> = ({ prediction
                 </span>
               </td>
               <td className="py-3 px-2">
-                <span className={`font-medium ${p.status === 'correct' ? 'text-green-400' : p.status === 'incorrect' ? 'text-slate-500' : 'text-yellow-400'}`}>
+                <span className={`font-medium ${p.status === 'correct' ? 'text-cyan-300' : p.status === 'incorrect' ? 'text-slate-500' : 'text-amber-300'}`}>
                   {p.status === 'correct' ? `+${p.xpReward}` : p.status === 'pending' ? `~${p.xpReward}` : '0'}
                 </span>
               </td>

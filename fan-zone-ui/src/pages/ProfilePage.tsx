@@ -29,17 +29,17 @@ export const ProfilePage: React.FC = () => {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const inputClass = "w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-green-500 transition-colors";
+  const inputClass = "w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors";
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="fz-page">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ProfileHeader user={user} />
 
-        <div className="flex gap-2 mt-6 mb-6 bg-slate-800 rounded-xl p-1">
+        <div className="flex gap-2 mt-6 mb-6 fz-card p-1.5">
           {(['stats', 'settings'] as const).map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${activeTab === tab ? 'bg-green-500 text-white' : 'text-slate-400 hover:text-white'}`}>
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${activeTab === tab ? 'bg-cyan-400 text-slate-950' : 'text-slate-400 hover:text-white'}`}>
               {tab}
             </button>
           ))}
@@ -48,7 +48,7 @@ export const ProfilePage: React.FC = () => {
         {activeTab === 'stats' && <ActivityStats user={user} />}
 
         {activeTab === 'settings' && (
-          <div className="bg-slate-800 rounded-xl p-6 space-y-4">
+          <div className="fz-card p-6 space-y-4">
             <h3 className="text-white font-semibold mb-4">Edit Profile</h3>
             <div>
               <label className="block text-slate-300 text-sm mb-1">Display Name</label>
@@ -63,7 +63,7 @@ export const ProfilePage: React.FC = () => {
               <input value={favoritePlayers} onChange={e => setFavoritePlayers(e.target.value)} placeholder="e.g. Bukayo Saka, Martin Odegaard" className={inputClass} />
               <p className="text-slate-500 text-xs mt-1">Comma-separated</p>
             </div>
-            <button onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white rounded-lg px-6 py-2 transition-colors">
+            <button onClick={handleSave} className="fz-btn-primary">
               {saved ? '✓ Saved!' : 'Save Changes'}
             </button>
           </div>

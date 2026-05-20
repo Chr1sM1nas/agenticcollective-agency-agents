@@ -2,10 +2,20 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User } from '../types';
 
 const initialState: AuthState = {
-  user: null,
+  user: {
+    id: 'demo-user',
+    email: 'jd@fanzone.app',
+    displayName: 'JD',
+    ageVerified: true,
+    xpScore: 2840,
+    predictionAccuracy: 68,
+    collectiblesCount: 12,
+    teamAffinity: 'Arsenal',
+    favoritePlayers: ['Bukayo Saka', 'Martin Odegaard'],
+  },
   isLoading: false,
   error: null,
-  identityStep: 'anonymous',
+  identityStep: 'age-verified',
 };
 
 export const loginWithEmail = createAsyncThunk(

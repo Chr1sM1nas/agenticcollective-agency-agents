@@ -33,24 +33,24 @@ export const LoginForm: React.FC = () => {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+        <label className="block text-sm font-medium text-slate-200 mb-1">Email</label>
         <input
           {...register('email')}
           type="email"
           placeholder="you@example.com"
-          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-green-500 transition-colors"
+          className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors"
         />
         {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+        <label className="block text-sm font-medium text-slate-200 mb-1">Password</label>
         <div className="relative">
           <input
             {...register('password')}
             type={showPassword ? 'text' : 'password'}
             placeholder="Min 8 characters"
-            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 pr-10 text-white placeholder-slate-400 focus:outline-none focus:border-green-500 transition-colors"
+            className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 pr-10 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors"
           />
           <button
             type="button"
@@ -65,10 +65,10 @@ export const LoginForm: React.FC = () => {
 
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
-          <input {...register('rememberMe')} type="checkbox" className="rounded border-slate-600 bg-slate-700 text-green-500" />
+          <input {...register('rememberMe')} type="checkbox" className="rounded border-slate-600 bg-slate-800 text-cyan-400" />
           Remember me
         </label>
-        <button type="button" className="text-sm text-green-400 hover:text-green-300 transition-colors">
+        <button type="button" className="text-sm text-cyan-300 hover:text-cyan-200 transition-colors">
           Forgot password?
         </button>
       </div>
@@ -76,7 +76,7 @@ export const LoginForm: React.FC = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-800 disabled:cursor-not-allowed text-white font-semibold rounded-lg px-4 py-2.5 transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-900 disabled:cursor-not-allowed text-slate-950 font-semibold rounded-lg px-4 py-2.5 transition-colors flex items-center justify-center gap-2"
       >
         {isLoading ? <><LoadingSpinner size="sm" color="text-white" /> Signing in...</> : 'Sign In'}
       </button>

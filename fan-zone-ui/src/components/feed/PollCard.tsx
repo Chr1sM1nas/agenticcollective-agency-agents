@@ -20,10 +20,10 @@ export const PollCard: React.FC<PollCardProps> = ({ poll: initialPoll }) => {
   };
 
   return (
-    <div className="bg-slate-800 rounded-xl p-4 hover:ring-1 hover:ring-slate-600 transition-all">
+    <div className="fz-card p-4 hover:border-cyan-400/40 transition-all">
       <div className="flex items-center gap-2 mb-3">
-        <BarChart2 className="h-4 w-4 text-green-400" />
-        <span className="text-green-400 text-xs font-medium uppercase">Poll</span>
+        <BarChart2 className="h-4 w-4 text-cyan-300" />
+        <span className="text-cyan-300 text-xs font-semibold uppercase">Poll</span>
       </div>
       <h3 className="text-white font-semibold text-sm mb-4">{poll.question}</h3>
       <div className="space-y-2">
@@ -35,13 +35,13 @@ export const PollCard: React.FC<PollCardProps> = ({ poll: initialPoll }) => {
               key={option.id}
               onClick={() => handleVote(option.id)}
               disabled={!!poll.userVoted}
-              className={`w-full relative rounded-lg overflow-hidden border transition-colors ${isVoted ? 'border-green-500' : 'border-slate-600 hover:border-slate-500'} disabled:cursor-default`}
+              className={`w-full relative rounded-lg overflow-hidden border transition-colors ${isVoted ? 'border-cyan-400' : 'border-slate-600 hover:border-slate-500'} disabled:cursor-default`}
             >
               {poll.userVoted && (
-                <div className="absolute inset-0 bg-green-500/20 transition-all" style={{ width: `${pct}%` }} />
+                <div className="absolute inset-0 bg-cyan-400/20 transition-all" style={{ width: `${pct}%` }} />
               )}
               <div className="relative flex justify-between items-center px-3 py-2">
-                <span className={`text-sm ${isVoted ? 'text-green-300 font-medium' : 'text-slate-300'}`}>{option.text}</span>
+                <span className={`text-sm ${isVoted ? 'text-cyan-200 font-medium' : 'text-slate-300'}`}>{option.text}</span>
                 {poll.userVoted && <span className="text-xs text-slate-400">{pct}%</span>}
               </div>
             </button>

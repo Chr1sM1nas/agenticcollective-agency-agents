@@ -40,7 +40,7 @@ export const AgeVerificationForm: React.FC = () => {
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const years = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - 18 - i);
 
-  const selectClass = "w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-green-500 transition-colors";
+  const selectClass = "w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 transition-colors";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -74,7 +74,7 @@ export const AgeVerificationForm: React.FC = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-800 text-white font-semibold rounded-lg px-4 py-2.5 transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-900 text-slate-950 font-semibold rounded-lg px-4 py-2.5 transition-colors flex items-center justify-center gap-2"
       >
         {isLoading ? <><LoadingSpinner size="sm" color="text-white" /> Verifying...</> : 'Verify Age'}
       </button>
