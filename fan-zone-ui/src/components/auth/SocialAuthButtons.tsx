@@ -4,6 +4,7 @@ import { AppDispatch } from '../../store';
 import { loginSuccess } from '../../store/authSlice';
 import { User } from '../../types';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { trackEvent } from '../../utils/analytics';
 
 type Provider = 'Google' | 'Apple' | 'Facebook' | 'X' | 'Email';
 
@@ -20,9 +21,11 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, icon, label, onTo
 
   const handleClick = async () => {
     if (provider === 'Email' && onToggleEmail) {
+      trackEvent('auth_email_mode_toggled');
       onToggleEmail();
       return;
     }
+    trackEvent('social_auth_submitted', { provider });
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const user: User = {
@@ -36,6 +39,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({ provider, icon, label, onTo
       teamAffinity: 'Arsenal',
     };
     dispatch(loginSuccess(user));
+    trackEvent('social_auth_succeeded', { provider });
     setLoading(false);
   };
 

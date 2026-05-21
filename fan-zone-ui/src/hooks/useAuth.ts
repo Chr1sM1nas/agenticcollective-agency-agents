@@ -1,6 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
-import { loginWithEmail, logout as logoutAction, setAgeVerified as setAgeVerifiedAction } from '../store/authSlice';
+import {
+  loginWithEmail,
+  registerWithEmail,
+  verifyAge as verifyAgeAction,
+  awardXp as awardXpAction,
+  logoutUser as logoutUserAction,
+  setAgeVerified as setAgeVerifiedAction,
+} from '../store/authSlice';
 
 export function useAuth() {
   const dispatch = useDispatch<AppDispatch>();
@@ -10,13 +17,25 @@ export function useAuth() {
     return dispatch(loginWithEmail({ email, password }));
   };
 
+  const register = (displayName: string, email: string, password: string) => {
+    return dispatch(registerWithEmail({ displayName, email, password }));
+  };
+
   const logout = () => {
-    dispatch(logoutAction());
+    return dispatch(logoutUserAction());
   };
 
   const setAgeVerified = () => {
     dispatch(setAgeVerifiedAction());
   };
 
-  return { user, isLoading, error, identityStep, login, logout, setAgeVerified };
+  const verifyAge = (day: number, month: number, year: number) => {
+    return dispatch(verifyAgeAction({ day, month, year }));
+  };
+
+  const awardXp = (xp: number) => {
+    dispatch(awardXpAction(xp));
+  };
+
+  return { user, isLoading, error, identityStep, login, register, logout, setAgeVerified, verifyAge, awardXp };
 }

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { trackEvent } from '../../utils/analytics';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email format'),
@@ -22,8 +23,15 @@ export const LoginForm: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    void login(data.email, data.password);
+  const onSubmit = async (data: LoginFormData) => {
+    trackEvent('login_submitted', { method: 'email' });
+    const result = await login(data.email, data.password);
+    if (result.meta.requestStatus === 'fulfilled') {
+      trackEvent('login_succeeded', { method: 'email' });
+      return;
+    }
+
+    trackEvent('login_failed', { method: 'email' });
   };
 
   return (

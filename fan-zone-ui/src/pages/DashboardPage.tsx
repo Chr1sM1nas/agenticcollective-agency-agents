@@ -1,13 +1,17 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useFeed } from '../hooks/useFeed';
+import { useLiveMatches } from '../hooks/useLiveMatches';
 import { mockLeaderboard } from '../utils/mockData';
 import { Bolt, Circle, Flame, Gem, Gift, Home, Medal, Shield, Target, Trophy, Users } from 'lucide-react';
+import { Navbar } from '../components/common/Navbar';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const { items, fetchContent } = useFeed();
+  const { matches: liveMatches, isLoading: isLiveLoading, error: liveError } = useLiveMatches();
 
   useEffect(() => {
     if (items.length === 0) fetchContent();
@@ -15,6 +19,15 @@ export const DashboardPage: React.FC = () => {
   }, []);
 
   const featuredFeed = items.slice(0, 3);
+  const liveTickerMatches = liveMatches.slice(0, 2);
+  const primaryLiveMatch = liveMatches[0];
+  const liveSourceLabel = isLiveLoading ? 'Syncing' : liveMatches.length > 0 ? 'Live API' : 'Fallback';
+  const liveSourceClass =
+    liveSourceLabel === 'Live API'
+      ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-300'
+      : liveSourceLabel === 'Syncing'
+        ? 'border-sky-400/50 bg-sky-500/10 text-sky-300'
+        : 'border-amber-400/50 bg-amber-500/10 text-amber-300';
 
   const xpCurrent = user?.xpScore ?? 2840;
   const xpTarget = 4200;
@@ -26,53 +39,50 @@ export const DashboardPage: React.FC = () => {
   const myEntry = mockLeaderboard.find((entry) => entry.userId === user?.id);
 
   const leftMenu = [
-    { label: 'Home Feed', to: '/dashboard', icon: Home, active: true, badge: '' },
-    { label: 'Match Hub', to: '/predictions', icon: Circle, active: false, badge: 'LIVE' },
-    { label: 'Predictions', to: '/predictions', icon: Target, active: false, badge: '' },
-    { label: 'Friend Leagues', to: '/leaderboard', icon: Users, active: false, badge: '' },
-    { label: 'Collectibles', to: '/collectibles', icon: Gem, active: false, badge: '2' },
-    { label: 'Live Drops', to: '/collectibles', icon: Flame, active: false, badge: '' },
-    { label: 'Leaderboard', to: '/leaderboard', icon: Trophy, active: false, badge: '' },
-    { label: 'Rewards', to: '/collectibles', icon: Gift, active: false, badge: '' },
-    { label: 'Sponsor Zone', to: '/collectibles', icon: Shield, active: false, badge: '' },
+    { label: 'Home Feed', to: '/dashboard', icon: Home, badge: '' },
+    { label: 'Match Hub', to: '/predictions', icon: Circle, badge: 'LIVE' },
+    { label: 'Predictions', to: '/predictions', icon: Target, badge: '' },
+    { label: 'Friend Leagues', to: '/leaderboard', icon: Users, badge: '' },
+    { label: 'Collectibles', to: '/collectibles', icon: Gem, badge: '2' },
+    { label: 'Live Drops', to: '/collectibles', icon: Flame, badge: '' },
+    { label: 'Leaderboard', to: '/leaderboard', icon: Trophy, badge: '' },
+    { label: 'Rewards', to: '/collectibles', icon: Gift, badge: '' },
+    { label: 'Sponsor Zone', to: '/collectibles', icon: Shield, badge: '' },
   ];
 
   return (
     <div className="min-h-screen bg-[#07080f] text-slate-100">
-      <header className="sticky top-0 z-50 h-14 border-b border-[#23253a] bg-[#0d1020] px-3 sm:px-5">
-        <div className="mx-auto flex h-full max-w-[1500px] items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <div className="fz-title text-[22px] font-extrabold tracking-tight text-[#ff244a]">FANZONE</div>
-            <div className="hidden md:flex items-center gap-2 text-xs">
-              <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-[#58ff83]">LIVE</div>
-              <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">Arsenal <span className="text-[#4cff7f]">2-1</span> Chelsea • 67'</div>
-              <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">Man City <span className="text-[#4cff7f]">0-0</span> Liverpool • 34'</div>
+      <Navbar />
+
+      <section className="border-b border-[#23253a] bg-[#0f1326] px-3 py-2 sm:px-5">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-2 text-xs">
+          <div className="fz-live-glow rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-[#58ff83]">LIVE</div>
+          <div className={`rounded-full border px-3 py-1 font-semibold ${liveSourceClass}`}>Data source: {liveSourceLabel}</div>
+          {isLiveLoading && <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">Loading Premier League live feed...</div>}
+          {!isLiveLoading && liveTickerMatches.length === 0 && <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">No EPL matches live right now</div>}
+          {!isLiveLoading && liveError && <div className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-300">Live API unavailable</div>}
+          {liveTickerMatches.map((match) => (
+            <div key={match.id} className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">
+              {match.homeTeam} <span className="text-[#4cff7f]">{match.homeScore}-{match.awayScore}</span> {match.awayTeam} • {match.minute}'
             </div>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="rounded-full bg-[#f5b326] px-3 py-1 font-bold text-[#2f2202]">{xpCurrent.toLocaleString()} XP</div>
-            <div className="hidden sm:flex items-center rounded-full border border-[#34374e] bg-[#171a2d] p-0.5">
-              <span className="px-2 py-0.5 text-slate-400">Light</span>
-              <span className="rounded-full bg-[#ef2550] px-2 py-0.5 font-semibold text-white">Dark</span>
-            </div>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#534429] bg-[#2a2130] font-semibold text-[#ff9cb1]">
-              {(user?.displayName?.charAt(0) || 'J').toUpperCase()}
-            </div>
-          </div>
+          ))}
+          <div className="ml-auto rounded-full bg-[#f5b326] px-3 py-1 font-bold text-[#2f2202]">{xpCurrent.toLocaleString()} XP</div>
         </div>
-      </header>
+      </section>
 
       <div className="mx-auto grid max-w-[1500px] grid-cols-1 gap-4 p-3 md:grid-cols-[200px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(0,1fr)_270px]">
-        <aside className="hidden md:block rounded-2xl border border-[#26293d] bg-[#0f1224] p-3">
+        <aside className="hidden md:block rounded-2xl border border-[#26293d] bg-[#0f1224] p-3 md:sticky md:top-24 md:h-fit">
+          <div className="mb-3 px-3 text-[10px] uppercase tracking-[0.14em] text-slate-500">Navigate</div>
           <div className="space-y-1">
             {leftMenu.map((item) => {
               const Icon = item.icon;
+              const isActive = location.pathname === item.to;
               return (
                 <Link
                   key={item.label}
                   to={item.to}
                   className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors ${
-                    item.active ? 'bg-[#3a1020] text-[#ff5878]' : 'text-slate-300 hover:bg-[#171a2f]'
+                    isActive ? 'bg-[#3a1020] text-[#ff5878]' : 'text-slate-300 hover:bg-[#171a2f]'
                   }`}
                 >
                   <span className="flex items-center gap-2">
@@ -109,29 +119,29 @@ export const DashboardPage: React.FC = () => {
 
             <div className="rounded-2xl border border-[#292d46] bg-gradient-to-br from-[#1a2144] via-[#251434] to-[#111a41] p-4">
               <div className="mb-5 flex items-center justify-between text-xs text-slate-300">
-                <span className="rounded-full bg-[#0d5f3b] px-2 py-1 font-semibold text-[#44f08c]">LIVE NOW</span>
-                <span>Premier League · GW 29</span>
-                <span>Emirates Stadium</span>
+                <span className="fz-live-glow rounded-full bg-[#0d5f3b] px-2 py-1 font-semibold text-[#44f08c]">LIVE NOW</span>
+                <span>{primaryLiveMatch?.league ?? 'Premier League · Matchday'}</span>
+                <span>{primaryLiveMatch?.venue ?? 'Stadium'}</span>
               </div>
               <div className="mb-6 grid grid-cols-3 items-center text-center">
                 <div>
                   <div className="mx-auto mb-2 h-6 w-6 rounded-full bg-[#ff273f]" />
-                  <div className="text-xl font-bold">Arsenal</div>
+                  <div className="text-xl font-bold">{primaryLiveMatch?.homeTeam ?? 'Arsenal'}</div>
                 </div>
                 <div>
-                  <div className="text-5xl font-extrabold tracking-tight">2-1</div>
-                  <div className="text-sm text-[#59ff8b]">67'</div>
+                  <div className="text-5xl font-extrabold tracking-tight">{primaryLiveMatch ? `${primaryLiveMatch.homeScore}-${primaryLiveMatch.awayScore}` : '2-1'}</div>
+                  <div className="text-sm text-[#59ff8b]">{primaryLiveMatch ? `${primaryLiveMatch.minute}'` : "67'"}</div>
                 </div>
                 <div>
                   <div className="mx-auto mb-2 h-6 w-6 rounded-full bg-[#2d79ff]" />
-                  <div className="text-xl font-bold">Chelsea</div>
+                  <div className="text-xl font-bold">{primaryLiveMatch?.awayTeam ?? 'Chelsea'}</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <button className="rounded-xl border border-[#ff294e] bg-[#491224] p-3 text-left">
                   <div className="text-[11px] uppercase text-slate-300">Home Win</div>
-                  <div className="text-2xl font-bold">Arsenal</div>
+                  <div className="text-2xl font-bold">{primaryLiveMatch?.homeTeam ?? 'Arsenal'}</div>
                   <div className="text-sm font-semibold text-[#ffb63d]">2.10</div>
                 </button>
                 <button className="rounded-xl border border-[#363a55] bg-[#20253e] p-3 text-left">
@@ -141,7 +151,7 @@ export const DashboardPage: React.FC = () => {
                 </button>
                 <button className="rounded-xl border border-[#363a55] bg-[#20253e] p-3 text-left">
                   <div className="text-[11px] uppercase text-slate-400">Away Win</div>
-                  <div className="text-2xl font-bold">Chelsea</div>
+                  <div className="text-2xl font-bold">{primaryLiveMatch?.awayTeam ?? 'Chelsea'}</div>
                   <div className="text-sm font-semibold text-[#ffb63d]">4.20</div>
                 </button>
               </div>

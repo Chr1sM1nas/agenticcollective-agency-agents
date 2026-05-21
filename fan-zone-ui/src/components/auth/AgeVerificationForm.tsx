@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { trackEvent } from '../../utils/analytics';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -12,13 +13,30 @@ const ageSchema = z.object({
   month: z.string().min(1, 'Month required'),
   year: z.string().min(1, 'Year required'),
 }).superRefine((data, ctx) => {
-  const dob = new Date(parseInt(data.year), parseInt(data.month) - 1, parseInt(data.day));
-  const age = (Date.now() - dob.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
-  if (age < 18) {
+  const day = parseInt(data.day, 10);
+  const month = parseInt(data.month, 10);
+  const year = parseInt(data.year, 10);
+
+  const dob = new Date(year, month - 1, day);
+  const isRealDate =
+    dob.getFullYear() === year &&
+    dob.getMonth() === month - 1 &&
+    dob.getDate() === day;
+
+  if (!isRealDate) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'You must be 18 or older to access this content',
-      path: ['year'],
+      message: 'Enter a valid date of birth',
+      path: ['day'],
+    });
+    return;
+  }
+
+  if (dob.getTime() > Date.now()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Date of birth cannot be in the future',
+      path: ['day'],
     });
   }
 });
@@ -26,14 +44,26 @@ const ageSchema = z.object({
 type AgeFormData = z.infer<typeof ageSchema>;
 
 export const AgeVerificationForm: React.FC = () => {
-  const { setAgeVerified, isLoading } = useAuth();
+  const { verifyAge, isLoading, error } = useAuth();
 
   const { register, handleSubmit, formState: { errors } } = useForm<AgeFormData>({
     resolver: zodResolver(ageSchema),
   });
 
-  const onSubmit = (_data: AgeFormData) => {
-    setAgeVerified();
+  const onSubmit = async (data: AgeFormData) => {
+    trackEvent('age_verification_submitted');
+    const result = await verifyAge(
+      parseInt(data.day, 10),
+      parseInt(data.month, 10),
+      parseInt(data.year, 10)
+    );
+
+    if (result.meta.requestStatus === 'fulfilled') {
+      trackEvent('age_verification_succeeded');
+      return;
+    }
+
+    trackEvent('age_verification_failed');
   };
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -44,23 +74,26 @@ export const AgeVerificationForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && <p className="text-red-400 text-xs">{error}</p>}
+
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-2">Date of Birth</label>
-        <div className="grid grid-cols-3 gap-3">
+        <p className="text-xs text-slate-400 mb-3">We use this only to confirm you are 18+.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <select {...register('day')} className={selectClass}>
+            <select aria-label="Day" {...register('day')} className={selectClass}>
               <option value="">Day</option>
               {days.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
           <div>
-            <select {...register('month')} className={selectClass}>
+            <select aria-label="Month" {...register('month')} className={selectClass}>
               <option value="">Month</option>
               {months.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
             </select>
           </div>
           <div>
-            <select {...register('year')} className={selectClass}>
+            <select aria-label="Year" {...register('year')} className={selectClass}>
               <option value="">Year</option>
               {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
@@ -74,10 +107,12 @@ export const AgeVerificationForm: React.FC = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-900 text-slate-950 font-semibold rounded-lg px-4 py-2.5 transition-colors flex items-center justify-center gap-2"
+        className="w-full fz-btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 rounded-lg px-4 py-2.5 flex items-center justify-center gap-2"
       >
         {isLoading ? <><LoadingSpinner size="sm" color="text-white" /> Verifying...</> : 'Verify Age'}
       </button>
+
+      <p className="text-center text-xs text-slate-500">By continuing, you confirm this information is accurate.</p>
     </form>
   );
 };

@@ -16,7 +16,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { to: '/dashboard', label: 'Dashboard' },
-    { to: '/predictions', label: 'Predictions' },
+    { to: '/predictions', label: 'Match Hub' },
     { to: '/collectibles', label: 'Collectibles' },
     { to: '/leaderboard', label: 'Leaderboard' },
   ];
@@ -25,21 +25,24 @@ export const Navbar: React.FC = () => {
     <nav className="sticky top-0 z-50 border-b border-[#24273b] bg-[#0d1020]/95 backdrop-blur-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
+          <Link to="/" aria-label="Go to FanZone home" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-[#3a1020] border border-[#5a2534] flex items-center justify-center">
               <Trophy className="h-5 w-5 text-[#ff4f73]" />
             </div>
-            <span className="fz-title text-[#ff2b57] font-bold text-xl">Fanzone</span>
-          </div>
+            <div className="leading-tight">
+              <span className="fz-title text-[#ff2b57] font-bold text-xl block">Fanzone</span>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">Powered by Ayo.Cool</p>
+            </div>
+          </Link>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-2 rounded-full border border-[#2d3046] bg-[#15192c] p-1">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 className={({ isActive }) =>
-                  `text-sm font-semibold transition-colors ${
-                    isActive ? 'text-[#ff6a89]' : 'text-slate-300 hover:text-white'
+                  `rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
+                    isActive ? 'bg-[#3a1020] text-[#ff7f9a]' : 'text-slate-300 hover:bg-[#20263f] hover:text-white'
                   }`
                 }
               >
@@ -94,9 +97,18 @@ export const Navbar: React.FC = () => {
       {mobileOpen && (
         <div className="md:hidden bg-slate-900/95 border-t border-slate-700">
           {navLinks.map((link) => (
-            <Link key={link.to} to={link.to} onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `block px-4 py-3 transition-colors ${
+                  isActive ? 'bg-[#351426] text-[#ff7f9a] font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                }`
+              }
+            >
               {link.label}
-            </Link>
+            </NavLink>
           ))}
           {user && (
             <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-red-400 hover:bg-slate-700 transition-colors flex items-center gap-2">

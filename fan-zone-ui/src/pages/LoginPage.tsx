@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Trophy, CheckCircle, Circle } from 'lucide-react';
 import { LoginForm } from '../components/auth/LoginForm';
+import { RegisterForm } from '../components/auth/RegisterForm';
 import { SocialAuthButtons } from '../components/auth/SocialAuthButtons';
 import { useAuth } from '../hooks/useAuth';
 
@@ -15,19 +16,31 @@ const steps = [
 export const LoginPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [searchParams] = useSearchParams();
+  const modeFromQuery = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
+  const initialMode = modeFromQuery;
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>(initialMode);
 
   useEffect(() => {
-    if (user) void navigate('/dashboard');
+    setAuthMode(modeFromQuery);
+  }, [modeFromQuery]);
+
+  useEffect(() => {
+    if (user) {
+      void navigate(user.ageVerified ? '/dashboard' : '/age-verify');
+    }
   }, [user, navigate]);
 
   return (
     <div className="fz-page flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Trophy className="h-10 w-10 text-cyan-300" />
-            <span className="fz-title text-white font-bold text-3xl">Fan Zone</span>
+          <div className="mb-4">
+            <div className="flex items-center justify-center gap-2">
+              <Trophy className="h-10 w-10 text-cyan-300" />
+              <span className="fz-title text-white font-bold text-3xl">Fan Zone</span>
+            </div>
+            <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400 mt-1">Powered by Ayo.Cool</p>
           </div>
           <p className="text-slate-300">Your ultimate football fan platform</p>
         </div>
@@ -47,29 +60,52 @@ export const LoginPage: React.FC = () => {
         </div>
 
         <div className="fz-card p-6">
-          <h2 className="text-white font-semibold text-lg mb-4">Sign in to Fan Zone</h2>
-          <SocialAuthButtons onToggleEmail={() => setShowEmailForm(!showEmailForm)} />
-
-          {showEmailForm && (
-            <>
-              <div className="flex items-center gap-3 my-4">
-                <div className="flex-1 h-px bg-slate-700" />
-                <span className="text-slate-500 text-xs">or continue with email</span>
-                <div className="flex-1 h-px bg-slate-700" />
-              </div>
-              <LoginForm />
-            </>
-          )}
-
-          {!showEmailForm && (
-            <button onClick={() => setShowEmailForm(true)} className="w-full mt-3 text-slate-400 text-sm hover:text-white transition-colors py-2">
-              or continue with email →
+          <div className="mb-4 rounded-xl border border-slate-700 bg-slate-900/60 p-1 grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              onClick={() => setAuthMode('login')}
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                authMode === 'login' ? 'bg-cyan-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              Login
             </button>
-          )}
+            <button
+              type="button"
+              onClick={() => setAuthMode('signup')}
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                authMode === 'signup' ? 'bg-cyan-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          <h2 className="text-white font-semibold text-lg mb-4">
+            {authMode === 'login' ? 'Sign in to Fan Zone' : 'Create your Fan Zone account'}
+          </h2>
+
+          <SocialAuthButtons />
+
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 h-px bg-slate-700" />
+            <span className="text-slate-500 text-xs">
+              {authMode === 'login' ? 'or continue with email' : 'or register with email'}
+            </span>
+            <div className="flex-1 h-px bg-slate-700" />
+          </div>
+
+          {authMode === 'login' ? <LoginForm /> : <RegisterForm />}
 
           <p className="text-center text-slate-500 text-sm mt-4">
-            New to Fan Zone?{' '}
-            <button className="text-cyan-300 hover:text-cyan-200 transition-colors">Create account</button>
+            {authMode === 'login' ? 'New to Fan Zone?' : 'Already have an account?'}{' '}
+            <button
+              type="button"
+              onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+              className="text-cyan-300 hover:text-cyan-200 transition-colors"
+            >
+              {authMode === 'login' ? 'Create account' : 'Log in'}
+            </button>
           </p>
         </div>
       </div>

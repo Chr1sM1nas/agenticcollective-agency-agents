@@ -1,27 +1,29 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User } from '../types';
+import { verifyAgeWithApi } from '../services/ageVerificationService';
+import {
+  loginWithDatabase,
+  logoutFromDatabase,
+  registerWithDatabase,
+  verifyUserAgeInDatabase,
+} from '../services/authDbService';
+import { isSupabaseConfigured } from '../lib/supabaseClient';
 
 const initialState: AuthState = {
-  user: {
-    id: 'demo-user',
-    email: 'jd@fanzone.app',
-    displayName: 'JD',
-    ageVerified: true,
-    xpScore: 2840,
-    predictionAccuracy: 68,
-    collectiblesCount: 12,
-    teamAffinity: 'Arsenal',
-    favoritePlayers: ['Bukayo Saka', 'Martin Odegaard'],
-  },
+  user: null,
   isLoading: false,
   error: null,
-  identityStep: 'age-verified',
+  identityStep: 'anonymous',
 };
 
 export const loginWithEmail = createAsyncThunk(
   'auth/loginWithEmail',
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
+      if (isSupabaseConfigured) {
+        return await loginWithDatabase(email, password);
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
       if (email && password.length >= 8) {
         const user: User = {
@@ -44,6 +46,74 @@ export const loginWithEmail = createAsyncThunk(
     }
   }
 );
+
+export const registerWithEmail = createAsyncThunk(
+  'auth/registerWithEmail',
+  async ({ displayName, email, password }: { displayName: string; email: string; password: string }, { rejectWithValue }) => {
+    try {
+      if (isSupabaseConfigured) {
+        return await registerWithDatabase({ displayName, email, password });
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (displayName.trim().length >= 2 && email && password.length >= 8) {
+        const user: User = {
+          id: `user-${Date.now()}`,
+          email,
+          displayName: displayName.trim(),
+          ageVerified: false,
+          xpScore: 0,
+          predictionAccuracy: 0,
+          collectiblesCount: 0,
+          teamAffinity: 'Arsenal',
+          favoritePlayers: [],
+        };
+        return user;
+      }
+      throw new Error('Please enter valid registration details');
+    } catch (err) {
+      const error = err as Error;
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const verifyAge = createAsyncThunk(
+  'auth/verifyAge',
+  async ({ day, month, year }: { day: number; month: number; year: number }, { rejectWithValue, getState }) => {
+    try {
+      const response = await verifyAgeWithApi({ day, month, year });
+      if (!response.isVerified) {
+        throw new Error(response.reason ?? 'Age verification failed');
+      }
+
+      if (isSupabaseConfigured) {
+        const state = getState() as { auth: AuthState };
+        const userId = state.auth.user?.id;
+        if (!userId) throw new Error('Please sign in before age verification');
+        const dobIsoDate = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        await verifyUserAgeInDatabase(userId, dobIsoDate);
+      }
+
+      return true;
+    } catch (err) {
+      const error = err as Error;
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk('auth/logoutUser', async (_, { rejectWithValue }) => {
+  try {
+    if (isSupabaseConfigured) {
+      await logoutFromDatabase();
+    }
+    return true;
+  } catch (err) {
+    const error = err as Error;
+    return rejectWithValue(error.message);
+  }
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -69,6 +139,11 @@ const authSlice = createSlice({
         state.identityStep = 'age-verified';
       }
     },
+    awardXp(state, action: PayloadAction<number>) {
+      if (!state.user) return;
+
+      state.user.xpScore += Math.max(0, action.payload);
+    },
     clearError(state) {
       state.error = null;
     },
@@ -88,9 +163,47 @@ const authSlice = createSlice({
       .addCase(loginWithEmail.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(registerWithEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerWithEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.identityStep = 'logged-in';
+        state.error = null;
+      })
+      .addCase(registerWithEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(verifyAge.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyAge.fulfilled, (state) => {
+        state.isLoading = false;
+        if (state.user) {
+          state.user.ageVerified = true;
+          state.identityStep = 'age-verified';
+        }
+      })
+      .addCase(verifyAge.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.identityStep = 'anonymous';
+        state.error = null;
+        state.isLoading = false;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { loginSuccess, logout, setIdentityStep, setAgeVerified, clearError } = authSlice.actions;
+export const { loginSuccess, logout, setIdentityStep, setAgeVerified, awardXp, clearError } = authSlice.actions;
 export default authSlice.reducer;

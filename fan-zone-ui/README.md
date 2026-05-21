@@ -29,6 +29,23 @@ npm run build      # production build → dist/
 npm run preview    # preview the production build locally
 ```
 
+### Environment Setup
+
+Create `fan-zone-ui/.env` from `.env.example` and add your keys:
+
+```bash
+cp .env.example .env
+```
+
+Required for DB-backed auth:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Optional for live score feed:
+
+- `VITE_THESPORTSDB_API_KEY` (defaults to test key `3`)
+
 ---
 
 ## Deploy to Vercel
@@ -149,6 +166,12 @@ Protected routes redirect to `/login` when unauthenticated, and to `/age-verify`
 
 ## Development Notes
 
-- **No real API calls** – all data comes from `src/utils/mockData.ts` with simulated `setTimeout` loading delays.
-- **Mock login** – enter any email/password on the login page; the Redux `authSlice` accepts any credentials.
+- **Database choice for this project**: Supabase (Postgres + Auth + RLS) is the most suitable quick production path for this React app.
+- **DB-backed login/register**: enabled when Supabase env vars are present.
+- **Fallback behavior**: if Supabase env vars are not set, the app falls back to mock login/register for local demos.
+- **Live match feed**: dashboard attempts TheSportsDB live EPL feed and falls back gracefully if unavailable.
 - All components include ARIA labels for WCAG 2.1 AA compliance.
+
+### Supabase Schema
+
+Run the SQL in `supabase/schema.sql` inside your Supabase SQL editor to create the `profiles` table and row-level-security policies.
