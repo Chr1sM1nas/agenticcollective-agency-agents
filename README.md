@@ -24,6 +24,30 @@ Born from a Reddit thread and months of iteration, **The Agency** is a growing c
 
 ## ⚡ Quick Start
 
+### 🖥️ Agent Dashboard (New!)
+
+Browse all 98 agents visually — search, filter by division, read full agent specs, and copy ready-to-use activation prompts:
+
+```bash
+# Generate the dashboard (requires Python 3)
+python3 scripts/generate-dashboard.py
+
+# Then open dashboard.html in your browser
+```
+
+Or use the CLI to explore agents from your terminal:
+
+```bash
+./run-agent.sh dashboard          # generate & open in browser
+./run-agent.sh list               # list all agents
+./run-agent.sh list engineering   # filter by division
+./run-agent.sh search "data"      # search by keyword
+./run-agent.sh info "UX Researcher"   # full details for one agent
+./run-agent.sh activate "Frontend Developer"  # get activation prompts
+```
+
+---
+
 ### Option 1: Use with Claude Code (Recommended)
 
 ```bash
@@ -80,6 +104,12 @@ Building the future, one commit at a time.
 | ⚡ [Rapid Prototyper](engineering/engineering-rapid-prototyper.md) | Fast POC development, MVPs | Quick proof-of-concepts, hackathon projects, fast iteration |
 | 💎 [Senior Developer](engineering/engineering-senior-developer.md) | Laravel/Livewire, advanced patterns | Complex implementations, architecture decisions |
 | 🔒 [Security Engineer](engineering/engineering-security-engineer.md) | Threat modeling, secure code review, security architecture | Application security, vulnerability assessment, security CI/CD |
+| 🗄️ [Data Engineer](engineering/engineering-data-engineer.md) | ETL/ELT pipelines, lakehouse architecture, dbt, Spark | Data infrastructure, analytics pipelines, cloud data platforms |
+| 🔌 [Embedded Firmware Engineer](engineering/engineering-embedded-firmware-engineer.md) | ESP32, STM32, ARM Cortex-M, FreeRTOS, Zephyr | Bare-metal and RTOS firmware for resource-constrained systems |
+| ⚙️ [Autonomous Optimization Architect](engineering/engineering-autonomous-optimization-architect.md) | LLM routing, shadow testing, AI FinOps, circuit breakers | Self-improving systems, cost-safe AI routing, dark launching |
+| 🚨 [Incident Response Commander](engineering/engineering-incident-response-commander.md) | Incident management, SLO/SLI, post-mortems, on-call design | Production incidents, severity frameworks, blameless post-mortems |
+| 📝 [Technical Writer](engineering/engineering-technical-writer.md) | Developer docs, API references, READMEs, tutorials | Documentation for libraries, APIs, SDKs, and internal platforms |
+| 🛡️ [Threat Detection Engineer](engineering/engineering-threat-detection-engineer.md) | SIEM rules, MITRE ATT&CK, threat hunting, Sigma | Detection-as-code, SOC alert tuning, security operations |
 
 ### 🎨 Design Division
 
@@ -94,6 +124,7 @@ Making it beautiful, usable, and delightful.
 | 📖 [Visual Storyteller](design/design-visual-storyteller.md) | Visual narratives, multimedia content | Compelling visual stories, brand storytelling |
 | ✨ [Whimsy Injector](design/design-whimsy-injector.md) | Personality, delight, playful interactions | Adding joy, micro-interactions, Easter eggs, brand personality |
 | 📷 [Image Prompt Engineer](design/design-image-prompt-engineer.md) | AI image generation prompts, photography | Photography prompts for Midjourney, DALL-E, Stable Diffusion |
+| 🤝 [Inclusive Visuals Specialist](design/design-inclusive-visuals-specialist.md) | Authentic representation, bias mitigation, cultural accuracy | Defeating AI stereotypes in generated images, diverse representation |
 
 ### 📢 Marketing Division
 
@@ -109,6 +140,8 @@ Growing your audience, one authentic interaction at a time.
 | 🤝 [Reddit Community Builder](marketing/marketing-reddit-community-builder.md) | Authentic engagement, value-driven content | Reddit strategy, community trust, authentic marketing |
 | 📱 [App Store Optimizer](marketing/marketing-app-store-optimizer.md) | ASO, conversion optimization, discoverability | App marketing, store optimization, app growth |
 | 🌐 [Social Media Strategist](marketing/marketing-social-media-strategist.md) | Cross-platform strategy, campaigns | Overall social strategy, multi-platform campaigns |
+| 🎠 [Carousel Growth Engine](marketing/marketing-carousel-growth-engine.md) | TikTok/Instagram carousel generation, analytics feedback loop | Autonomous viral carousel publishing, data-driven content iteration |
+| 🔍 [SEO Specialist](marketing/marketing-seo-specialist.md) | Technical SEO, content optimization, link authority, Core Web Vitals | Organic search growth, SERP features, keyword strategy |
 | 📕 [Xiaohongshu Specialist](marketing/marketing-xiaohongshu-specialist.md) | Lifestyle content, trend-driven strategy | Xiaohongshu growth, aesthetic storytelling, Gen Z audience |
 | 💬 [WeChat Official Account Manager](marketing/marketing-wechat-official-account.md) | Subscriber engagement, content marketing | WeChat OA strategy, community building, conversion optimization |
 | 🧠 [Zhihu Strategist](marketing/marketing-zhihu-strategist.md) | Thought leadership, knowledge-driven engagement | Zhihu authority building, Q&A strategy, lead generation |
@@ -122,6 +155,7 @@ Building the right thing at the right time.
 | 🎯 [Sprint Prioritizer](product/product-sprint-prioritizer.md) | Agile planning, feature prioritization | Sprint planning, resource allocation, backlog management |
 | 🔍 [Trend Researcher](product/product-trend-researcher.md) | Market intelligence, competitive analysis | Market research, opportunity assessment, trend identification |
 | 💬 [Feedback Synthesizer](product/product-feedback-synthesizer.md) | User feedback analysis, insights extraction | Feedback analysis, user insights, product priorities |
+| 🧠 [Behavioral Nudge Engine](product/product-behavioral-nudge-engine.md) | Behavioral psychology, habit formation, user motivation | Adaptive coaching, ADHD-friendly UX, gamification, retention |
 
 ### 🎬 Project Management Division
 
@@ -134,6 +168,7 @@ Keeping the trains running on time (and under budget).
 | ⚙️ [Studio Operations](project-management/project-management-studio-operations.md) | Day-to-day efficiency, process optimization | Operational excellence, team support, productivity |
 | 🧪 [Experiment Tracker](project-management/project-management-experiment-tracker.md) | A/B tests, hypothesis validation | Experiment management, data-driven decisions, testing |
 | 👔 [Senior Project Manager](project-management/project-manager-senior.md) | Realistic scoping, task conversion | Converting specs to tasks, scope management |
+| 🔗 [Jira Workflow Steward](project-management/project-management-jira-workflow-steward.md) | Jira-linked Git workflows, traceable commits, branch strategy | Delivery traceability, audit-ready workflows, PR hygiene |
 
 ### 🧪 Testing Division
 
@@ -190,6 +225,12 @@ The unique specialists who don't fit in a box.
 | 📬 [Report Distribution Agent](specialized/report-distribution-agent.md) | Automated report delivery | Territory-based report distribution, scheduled sends |
 | 🔐 [Agentic Identity & Trust Architect](specialized/agentic-identity-trust.md) | Agent identity, authentication, trust verification | Multi-agent identity systems, agent authorization, audit trails |
 | 🔗 [Identity Graph Operator](specialized/identity-graph-operator.md) | Shared identity resolution for multi-agent systems | Entity deduplication, merge proposals, cross-agent identity consistency |
+| 💸 [Accounts Payable Agent](specialized/accounts-payable-agent.md) | Autonomous payment processing, crypto/fiat/stablecoin rails | Vendor payments, contractor invoices, recurring bills |
+| ✅ [Compliance Auditor](specialized/compliance-auditor.md) | SOC 2, ISO 27001, HIPAA, PCI-DSS | Audit readiness, controls assessment, gap remediation |
+| 🗃️ [ZK Steward](specialized/zk-steward.md) | Zettelkasten knowledge management, atomic notes, cross-domain linking | Knowledge base building, note linking, decision support |
+| 🌍 [Cultural Intelligence Strategist](specialized/specialized-cultural-intelligence-strategist.md) | CQ audits, representation, global-first architecture | Invisible exclusion detection, localization, intersectional identity |
+| 📣 [Developer Advocate](specialized/specialized-developer-advocate.md) | DX engineering, technical content, community building | Platform adoption, developer relations, onboarding optimization |
+| 🔬 [Model QA Specialist](specialized/specialized-model-qa.md) | ML model auditing, calibration, fairness, interpretability | Independent model review, replication testing, audit-grade reporting |
 
 ### 🎮 Game Development Division
 
@@ -374,7 +415,7 @@ Each agent is designed with:
 
 ## 📊 Stats
 
-- 🎭 **80 Specialized Agents** across 10 divisions
+- 🎭 **98 Specialized Agents** across 10 divisions
 - 📝 **10,000+ lines** of personality, process, and code examples
 - ⏱️ **Months of iteration** from real-world usage
 - 🌟 **Battle-tested** in production environments
@@ -503,7 +544,7 @@ See [integrations/antigravity/README.md](integrations/antigravity/README.md) for
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
-Installs as a Gemini CLI extension with 80 skills + a manifest.
+Installs as a Gemini CLI extension with 98 skills + a manifest.
 
 ```bash
 ./scripts/install.sh --tool gemini-cli
