@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CirclePlay, Sparkles, Trophy, Users, Zap } from 'lucide-react';
+import { ArrowRight, CirclePlay, Sparkles, Trophy, Users, X, Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { trackEvent } from '../utils/analytics';
+
+const PREVIEW_VIDEO_URL =
+  import.meta.env.VITE_FANZONE_PREVIEW_VIDEO_URL ||
+  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
+const PREVIEW_POSTER_URL =
+  import.meta.env.VITE_FANZONE_PREVIEW_POSTER_URL ||
+  'https://picsum.photos/seed/fanzone-preview/1280/720';
 
 const hypeTags = [
   'Live Match Quests',
@@ -40,6 +47,37 @@ const featureCards = [
 export const HomeLandingPage: React.FC = () => {
   const { user } = useAuth();
   const fanZoneDestination = user ? '/dashboard' : '/login';
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const hasTrackedPreviewPlay = useRef(false);
+
+  const openPreview = (source: 'hero' | 'panel') => {
+    setIsPreviewOpen(true);
+    hasTrackedPreviewPlay.current = false;
+    trackEvent('landing_preview_opened', { source, authenticated: Boolean(user) });
+  };
+
+  const closePreview = (source: 'dismiss' | 'overlay' | 'escape' | 'close-button') => {
+    setIsPreviewOpen(false);
+    trackEvent('landing_preview_closed', { source, authenticated: Boolean(user) });
+  };
+
+  useEffect(() => {
+    if (!isPreviewOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closePreview('escape');
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isPreviewOpen]);
 
   return (
     <div className="fz-page relative overflow-hidden bg-[#060912] text-slate-100">
@@ -105,6 +143,7 @@ export const HomeLandingPage: React.FC = () => {
               </Link>
               <button
                 type="button"
+                onClick={() => openPreview('hero')}
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
               >
                 <CirclePlay className="h-4 w-4" />
@@ -159,6 +198,22 @@ export const HomeLandingPage: React.FC = () => {
                 <span className="mt-1 block text-base text-white">4.20</span>
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={() => openPreview('panel')}
+              className="mt-4 w-full rounded-2xl border border-[#2f4e85] bg-gradient-to-br from-[#112649] to-[#0a1a33] p-4 text-left transition-colors hover:border-[#4b75bf]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8bb4ff]">60s Matchday Teaser</p>
+                  <p className="mt-1 text-sm font-semibold text-white">See how FanZone goes live in one minute</p>
+                </div>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#ff5f3f] text-white">
+                  <CirclePlay className="h-4 w-4" />
+                </span>
+              </div>
+            </button>
           </div>
         </section>
 
@@ -186,6 +241,82 @@ export const HomeLandingPage: React.FC = () => {
           })}
         </section>
       </main>
+
+      {isPreviewOpen && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-[#04070f]/85 px-4 py-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="FanZone 60 second preview"
+          onClick={() => closePreview('overlay')}
+        >
+          <div
+            className="w-full max-w-3xl rounded-3xl border border-white/15 bg-[#091126] p-4 shadow-2xl sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9bc2ff]">FanZone Preview</p>
+                <h2 className="fz-title text-xl font-bold text-white sm:text-2xl">60s Matchday Teaser</h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Close preview"
+                onClick={() => closePreview('close-button')}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-slate-200 transition-colors hover:bg-white/10"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-[#233a66] bg-black/30">
+              <video
+                controls
+                autoPlay
+                playsInline
+                preload="metadata"
+                poster={PREVIEW_POSTER_URL}
+                className="h-auto w-full"
+                onPlay={() => {
+                  if (!hasTrackedPreviewPlay.current) {
+                    trackEvent('landing_preview_started', { authenticated: Boolean(user) });
+                    hasTrackedPreviewPlay.current = true;
+                  }
+                }}
+                onEnded={() => trackEvent('landing_preview_completed', { authenticated: Boolean(user) })}
+              >
+                <source src={PREVIEW_VIDEO_URL} type="video/mp4" />
+                Your browser does not support embedded videos.
+              </video>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
+              <Link
+                to={fanZoneDestination}
+                onClick={() => trackEvent('landing_preview_cta_clicked', { cta: 'enter-fanzone', authenticated: Boolean(user) })}
+                className="inline-flex items-center gap-2 rounded-full bg-[#ff5b39] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#ff7359]"
+              >
+                Enter Fan Zone
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/login?mode=signup"
+                onClick={() => trackEvent('landing_preview_cta_clicked', { cta: 'register', authenticated: Boolean(user) })}
+                className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-slate-100 transition-colors hover:bg-white/10"
+              >
+                Register
+              </Link>
+              <button
+                type="button"
+                onClick={() => closePreview('dismiss')}
+                className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

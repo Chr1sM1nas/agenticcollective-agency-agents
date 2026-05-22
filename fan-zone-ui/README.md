@@ -46,6 +46,11 @@ Optional for live score feed:
 
 - `VITE_THESPORTSDB_API_KEY` (defaults to test key `3`)
 
+Optional for landing 60s preview media:
+
+- `VITE_FANZONE_PREVIEW_VIDEO_URL`
+- `VITE_FANZONE_PREVIEW_POSTER_URL`
+
 ---
 
 ## Deploy to Vercel

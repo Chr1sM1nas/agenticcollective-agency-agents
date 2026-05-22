@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Trophy, Menu, X, User, Settings, LogOut, ChevronDown, Star } from 'lucide-react';
+import { Menu, X, User, Settings, LogOut, ChevronDown, Star } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 export const Navbar: React.FC = () => {
@@ -11,7 +11,7 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const navLinks = [
@@ -25,14 +25,9 @@ export const Navbar: React.FC = () => {
     <nav className="sticky top-0 z-50 border-b border-[#24273b] bg-[#0d1020]/95 backdrop-blur-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" aria-label="Go to FanZone home" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-[#3a1020] border border-[#5a2534] flex items-center justify-center">
-              <Trophy className="h-5 w-5 text-[#ff4f73]" />
-            </div>
-            <div className="leading-tight">
-              <span className="fz-title text-[#ff2b57] font-bold text-xl block">Fanzone</span>
-              <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">Powered by Ayo.Cool</p>
-            </div>
+          <Link to="/" aria-label="Go to FanZone home" className="inline-block leading-tight">
+            <span className="fz-title text-2xl font-extrabold tracking-tight text-[#ff4d38] block">FanZone</span>
+            <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">Powered by Ayo.Cool</p>
           </Link>
 
           <div className="hidden md:flex items-center gap-2 rounded-full border border-[#2d3046] bg-[#15192c] p-1">

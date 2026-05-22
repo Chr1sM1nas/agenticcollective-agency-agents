@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -19,6 +19,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<HomeLandingPage />} />
+            <Route path="/fan-zone-ui" element={<Navigate to="/" replace />} />
+            <Route path="/fan-zone-ui/*" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/age-verify" element={<AgeVerificationPage />} />
             <Route element={<ProtectedRoute requireAgeVerified />}>

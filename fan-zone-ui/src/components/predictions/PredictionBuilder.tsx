@@ -1,15 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Match, Prediction } from '../../types';
 import { PREDICTION_XP_REWARDS } from '../../constants';
 import { mockMatches } from '../../utils/mockData';
+import { useMatchFeed } from '../../hooks/useMatchFeed';
 import { OddsDisplay } from './OddsDisplay';
 import { Star } from 'lucide-react';
 
+type PredictionType = 'match-result' | 'correct-score' | 'first-goalscorer' | 'cards' | 'possession';
+type QuickPickOutcome = 'home' | 'draw' | 'away';
+
 interface PredictionBuilderProps {
   onPredictionSubmit: (prediction: Omit<Prediction, 'id' | 'createdAt' | 'status'>) => void;
+  initialMatchId?: string;
+  initialPredictionType?: PredictionType;
+  initialPredictionValue?: string;
+  initialOutcome?: QuickPickOutcome;
 }
 
-type PredictionType = 'match-result' | 'correct-score' | 'first-goalscorer' | 'cards' | 'possession';
+function formatMatchMeta(match: Match): string {
+  if (match.status === 'live') {
+    return `${match.competition} • Live now`;
+  }
+
+  if (match.status === 'finished') {
+    return `${match.competition} • Final`;
+  }
+
+  const kickoffDate = new Date(match.kickoff);
+  if (Number.isNaN(kickoffDate.getTime())) {
+    return match.competition;
+  }
+
+  const dateText = kickoffDate.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+
+  const timeText = kickoffDate.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return `${match.competition} • ${dateText}, ${timeText}`;
+}
 
 const predictionTypes: { value: PredictionType; label: string }[] = [
   { value: 'match-result', label: 'Match Result' },
@@ -19,13 +52,77 @@ const predictionTypes: { value: PredictionType; label: string }[] = [
   { value: 'possession', label: 'Possession' },
 ];
 
-export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({ onPredictionSubmit }) => {
+export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({
+  onPredictionSubmit,
+  initialMatchId,
+  initialPredictionType,
+  initialPredictionValue,
+  initialOutcome,
+}) => {
+  const { matches: feedMatches, isLoading: isFeedLoading, error: feedError } = useMatchFeed();
   const [step, setStep] = useState(1);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [predictionType, setPredictionType] = useState<PredictionType>('match-result');
   const [prediction, setPrediction] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [displayOdds] = useState(() => Math.random() * 6 + 1.5);
+  const hasAppliedQuickPick = useRef(false);
+
+  const apiPredictionMatches: Match[] = feedMatches.map((match) => ({
+    id: match.id,
+    homeTeam: match.homeTeam,
+    awayTeam: match.awayTeam,
+    homeTeamEmoji: '⚽',
+    awayTeamEmoji: '⚽',
+    kickoff: match.kickoff,
+    competition: match.league,
+    status: match.status,
+  }));
+
+  const statusPriority: Record<Match['status'], number> = {
+    live: 0,
+    upcoming: 1,
+    finished: 2,
+  };
+
+  const sortedApiMatches = [...apiPredictionMatches].sort((a, b) => {
+    const statusCompare = statusPriority[a.status] - statusPriority[b.status];
+    if (statusCompare !== 0) return statusCompare;
+
+    const aKickoff = new Date(a.kickoff).getTime();
+    const bKickoff = new Date(b.kickoff).getTime();
+    if (Number.isNaN(aKickoff) || Number.isNaN(bKickoff)) return 0;
+
+    return aKickoff - bKickoff;
+  });
+
+  const predictionMatches = sortedApiMatches.length > 0
+    ? sortedApiMatches
+    : mockMatches.filter((m) => m.status === 'upcoming');
+
+  useEffect(() => {
+    if (!initialMatchId || hasAppliedQuickPick.current) return;
+
+    const match = predictionMatches.find((candidate) => candidate.id === initialMatchId);
+    if (!match) return;
+
+    setSelectedMatch(match);
+    setPredictionType(initialPredictionType ?? 'match-result');
+
+    const quickPickValue = initialPredictionValue ?? (
+      initialOutcome === 'home'
+        ? `${match.homeTeam} Win`
+        : initialOutcome === 'away'
+          ? `${match.awayTeam} Win`
+          : initialOutcome === 'draw'
+            ? 'Draw'
+            : ''
+    );
+
+    setPrediction(quickPickValue);
+    setStep(quickPickValue ? 3 : 2);
+    hasAppliedQuickPick.current = true;
+  }, [initialMatchId, initialOutcome, initialPredictionType, initialPredictionValue, predictionMatches]);
 
   const xpReward = PREDICTION_XP_REWARDS[predictionType] ?? 0;
 
@@ -115,18 +212,29 @@ export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({ onPredicti
       {step === 1 && (
         <div>
           <h3 className="text-white font-semibold mb-3">Select Match</h3>
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+            <span className={`rounded-full border px-2 py-1 font-semibold ${sortedApiMatches.length > 0 ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-300' : isFeedLoading ? 'border-sky-400/50 bg-sky-500/10 text-sky-300' : 'border-amber-400/50 bg-amber-500/10 text-amber-300'}`}>
+              Source: {sortedApiMatches.length > 0 ? 'API Feed' : isFeedLoading ? 'Syncing' : 'Fallback'}
+            </span>
+            {!isFeedLoading && feedError && (
+              <span className="text-amber-300">API feed unavailable, using scheduled fixtures.</span>
+            )}
+          </div>
           <div className="space-y-2 max-h-64 overflow-y-auto">
-            {mockMatches.filter(m => m.status === 'upcoming').map(match => (
-              <button key={match.id} onClick={() => { setSelectedMatch(match); setStep(2); }} className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${selectedMatch?.id === match.id ? 'border-cyan-400 bg-cyan-400/10' : 'border-slate-700 hover:border-slate-600 bg-slate-800/70'}`}>
-                <div className="flex items-center gap-2">
-                  <span>{match.homeTeamEmoji}</span>
-                  <span className="text-white text-sm">{match.homeTeam}</span>
+            {predictionMatches.map(match => (
+              <button key={match.id} onClick={() => { setSelectedMatch(match); setStep(2); }} className={`w-full rounded-lg border p-3 transition-colors ${selectedMatch?.id === match.id ? 'border-cyan-400 bg-cyan-400/10' : 'border-slate-700 bg-slate-800/70 hover:border-slate-600'}`}>
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span>{match.homeTeamEmoji}</span>
+                    <span className="text-white text-sm">{match.homeTeam}</span>
+                  </div>
+                  <span className="text-slate-400 text-xs font-medium">VS</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm">{match.awayTeam}</span>
+                    <span>{match.awayTeamEmoji}</span>
+                  </div>
                 </div>
-                <span className="text-slate-400 text-xs font-medium">VS</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-white text-sm">{match.awayTeam}</span>
-                  <span>{match.awayTeamEmoji}</span>
-                </div>
+                <div className="text-[11px] text-slate-400">{formatMatchMeta(match)}</div>
               </button>
             ))}
           </div>

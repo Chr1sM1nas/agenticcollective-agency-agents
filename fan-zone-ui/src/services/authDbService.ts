@@ -70,8 +70,28 @@ export async function registerWithDatabase(input: RegisterInput): Promise<User> 
     },
   });
 
-  if (error) throw new Error(error.message);
-  if (!data.user) throw new Error('Unable to create account');
+  if (error) {
+    const normalizedMessage = error.message.toLowerCase();
+    if (normalizedMessage.includes('already registered') || normalizedMessage.includes('already exists')) {
+      throw new Error('user with existing email address exists - unable to create account');
+    }
+    if (normalizedMessage.includes('rate limit')) {
+      throw new Error('Too many signup attempts right now. Please wait a few minutes and try again.');
+    }
+    if (normalizedMessage.includes('signups not allowed')) {
+      throw new Error('New account registration is currently disabled on this project.');
+    }
+    throw new Error(error.message);
+  }
+  if (!data.user) {
+    throw new Error('user with existing email address exists - unable to create account');
+  }
+
+  // If email confirmation is enabled, Supabase may return a user without a session.
+  // In that state, profile writes will fail RLS because auth.uid() is null.
+  if (!data.session) {
+    throw new Error('Account created. Check your email to verify your account, then log in.');
+  }
 
   const { error: profileError } = await client.from('profiles').upsert({
     id: data.user.id,
