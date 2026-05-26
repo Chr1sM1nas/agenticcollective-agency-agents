@@ -21,6 +21,11 @@ export const Navbar: React.FC = () => {
     { to: '/leaderboard', label: 'Leaderboard' },
   ];
 
+  // Remove the Predictions menu item (label or route)
+  const filteredNavLinks = navLinks.filter(
+    link => link.label !== 'Predictions' && link.to !== '/predictions'
+  );
+
   return (
     <nav className="sticky top-0 z-50 border-b border-[#24273b] bg-[#0d1020]/95 backdrop-blur-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +36,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-2 rounded-full border border-[#2d3046] bg-[#15192c] p-1">
-            {navLinks.map((link) => (
+            {filteredNavLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -91,7 +96,7 @@ export const Navbar: React.FC = () => {
 
       {mobileOpen && (
         <div className="md:hidden bg-slate-900/95 border-t border-slate-700">
-          {navLinks.map((link) => (
+          {filteredNavLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}

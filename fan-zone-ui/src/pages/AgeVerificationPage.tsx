@@ -1,14 +1,20 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { AgeVerificationForm } from '../components/auth/AgeVerificationForm';
 import { useAuth } from '../hooks/useAuth';
 
 export const AgeVerificationPage: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  const nextPath = searchParams.get('next');
+  const safeNextPath = nextPath && nextPath.startsWith('/') && !nextPath.startsWith('/age-verify')
+    ? nextPath
+    : '/dashboard';
 
   if (!user) return <Navigate to="/login" replace />;
-  if (user.ageVerified) return <Navigate to="/dashboard" replace />;
+  if (user.ageVerified) return <Navigate to={safeNextPath} replace />;
 
   return (
     <div className="fz-page flex items-center justify-center px-4">

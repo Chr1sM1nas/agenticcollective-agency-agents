@@ -87,14 +87,17 @@ export const verifyAge = createAsyncThunk(
         throw new Error(response.reason ?? 'Age verification failed');
       }
 
-      if (isSupabaseConfigured) {
-        const state = getState() as { auth: AuthState };
-        const userId = state.auth.user?.id;
-        if (!userId) throw new Error('Please sign in before age verification');
+      const state = getState() as { auth: AuthState };
+      const userId = state.auth.user?.id;
+
+      // Only call Supabase if configured and userId is a valid UUID (not demo/mock)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (isSupabaseConfigured && userId && uuidRegex.test(userId)) {
         const dobIsoDate = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         await verifyUserAgeInDatabase(userId, dobIsoDate);
       }
 
+      // For demo/mock users, just update local state
       return true;
     } catch (err) {
       const error = err as Error;

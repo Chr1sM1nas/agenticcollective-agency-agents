@@ -18,18 +18,39 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const modeFromQuery = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
+  const nextParam = searchParams.get('next') ?? undefined;
   const initialMode = modeFromQuery;
   const [authMode, setAuthMode] = useState<'login' | 'signup'>(initialMode);
+
+  const resolvePostAuthPath = (isAgeVerified: boolean, nextPath?: string) => {
+    if (!nextPath || !nextPath.startsWith('/')) {
+      return isAgeVerified ? '/dashboard' : '/age-verify';
+    }
+
+    if (nextPath.startsWith('/login')) {
+      return isAgeVerified ? '/dashboard' : '/age-verify';
+    }
+
+    if (!isAgeVerified) {
+      return '/age-verify';
+    }
+
+    if (nextPath.startsWith('/age-verify')) {
+      return '/dashboard';
+    }
+
+    return nextPath;
+  };
 
   useEffect(() => {
     setAuthMode(modeFromQuery);
   }, [modeFromQuery]);
 
   useEffect(() => {
-    if (user) {
-      void navigate(user.ageVerified ? '/dashboard' : '/age-verify');
+    if (user && modeFromQuery !== 'signup') {
+      void navigate(resolvePostAuthPath(user.ageVerified, nextParam), { replace: true });
     }
-  }, [user, navigate]);
+  }, [modeFromQuery, navigate, nextParam, user]);
 
   return (
     <div className="fz-page flex items-center justify-center px-4">
@@ -89,9 +110,7 @@ export const LoginPage: React.FC = () => {
 
           <div className="flex items-center gap-3 my-4">
             <div className="flex-1 h-px bg-slate-700" />
-            <span className="text-slate-500 text-xs">
-              {authMode === 'login' ? 'or continue with email' : 'or register with email'}
-            </span>
+            <span className="text-slate-500 text-xs">or login/register with email</span>
             <div className="flex-1 h-px bg-slate-700" />
           </div>
 

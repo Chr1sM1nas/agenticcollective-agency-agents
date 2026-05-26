@@ -1,4 +1,4 @@
-import { Circle, Flame, Gem, Gift, Home, Shield, Target, Trophy, Users, type LucideIcon } from 'lucide-react';
+import { Circle, Flame, Gem, Gift, Home, Shield, Trophy, Users, type LucideIcon } from 'lucide-react';
 
 export type LeftNavKey =
   | 'home-feed'
@@ -22,13 +22,12 @@ export interface LeftNavItem {
 export const LEFT_NAV_ITEMS: LeftNavItem[] = [
   { key: 'home-feed', label: 'Home Feed', to: '/dashboard', icon: Home, badge: '' },
   { key: 'match-hub', label: 'Match Hub', to: '/predictions', icon: Circle, badge: 'LIVE' },
-  { key: 'predictions', label: 'Predictions', to: '/predictions', icon: Target, badge: '' },
   { key: 'friend-leagues', label: 'Friend Leagues', to: '/leaderboard', icon: Users, badge: '' },
   { key: 'collectibles', label: 'Collectibles', to: '/collectibles', icon: Gem, badge: '2' },
-  { key: 'live-drops', label: 'Live Drops', to: '/collectibles', icon: Flame, badge: '' },
+  { key: 'live-drops', label: 'Live Drops', to: '/live-drops', icon: Flame, badge: '' },
   { key: 'leaderboard', label: 'Leaderboard', to: '/leaderboard', icon: Trophy, badge: '' },
   { key: 'rewards', label: 'Rewards', to: '/collectibles', icon: Gift, badge: '' },
-  { key: 'sponsor-zone', label: 'Sponsor Zone', to: '/collectibles', icon: Shield, badge: '' },
+  { key: 'sponsor-zone', label: 'Sponsor Zone', to: '/sponsor-zone', icon: Shield, badge: '' },
 ];
 
 export function getActiveLeftNavKey(pathname: string): LeftNavKey | undefined {

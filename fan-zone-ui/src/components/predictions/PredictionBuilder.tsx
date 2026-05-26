@@ -59,7 +59,14 @@ export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({
   initialPredictionValue,
   initialOutcome,
 }) => {
-  const { matches: feedMatches, isLoading: isFeedLoading, error: feedError } = useMatchFeed();
+  const {
+    matches: feedMatches,
+    isLoading: isFeedLoading,
+    isRefreshing: isFeedRefreshing,
+    error: feedError,
+    lastUpdated,
+    refresh: refreshFeed,
+  } = useMatchFeed();
   const [step, setStep] = useState(1);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [predictionType, setPredictionType] = useState<PredictionType>('match-result');
@@ -214,8 +221,19 @@ export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({
           <h3 className="text-white font-semibold mb-3">Select Match</h3>
           <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
             <span className={`rounded-full border px-2 py-1 font-semibold ${sortedApiMatches.length > 0 ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-300' : isFeedLoading ? 'border-sky-400/50 bg-sky-500/10 text-sky-300' : 'border-amber-400/50 bg-amber-500/10 text-amber-300'}`}>
-              Source: {sortedApiMatches.length > 0 ? 'API Feed' : isFeedLoading ? 'Syncing' : 'Fallback'}
+              Source: {sortedApiMatches.length > 0 ? 'API Feed' : isFeedLoading || isFeedRefreshing ? 'Syncing' : 'Fallback'}
             </span>
+            <button
+              type="button"
+              onClick={() => void refreshFeed()}
+              disabled={isFeedLoading || isFeedRefreshing}
+              className="rounded-full border border-slate-500/60 bg-slate-800/70 px-2 py-1 font-semibold text-slate-200 transition-colors hover:border-slate-400 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isFeedLoading || isFeedRefreshing ? 'Refreshing...' : 'Retry feed'}
+            </button>
+            {lastUpdated && (
+              <span className="text-slate-400">Updated {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            )}
             {!isFeedLoading && feedError && (
               <span className="text-amber-300">API feed unavailable, using scheduled fixtures.</span>
             )}

@@ -4,30 +4,44 @@ import { fetchPremierLeagueMatchFeed, MatchFeedEvent } from '../services/liveSco
 export function useMatchFeed() {
   const [matches, setMatches] = useState<MatchFeedEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
-  const fetchMatchFeed = useCallback(async () => {
+  const fetchMatchFeed = useCallback(async (options?: { background?: boolean }) => {
+    const isBackground = options?.background ?? false;
+
+    if (isBackground) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+
     try {
       setError(null);
       const data = await fetchPremierLeagueMatchFeed();
       setMatches(data);
+      setLastUpdated(new Date().toISOString());
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load match feed';
       setError(message);
-      setMatches([]);
     } finally {
-      setIsLoading(false);
+      if (isBackground) {
+        setIsRefreshing(false);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     void fetchMatchFeed();
     const interval = window.setInterval(() => {
-      void fetchMatchFeed();
+      void fetchMatchFeed({ background: true });
     }, 60000);
 
     return () => window.clearInterval(interval);
   }, [fetchMatchFeed]);
 
-  return { matches, isLoading, error, refresh: fetchMatchFeed };
+  return { matches, isLoading, isRefreshing, error, lastUpdated, refresh: fetchMatchFeed };
 }

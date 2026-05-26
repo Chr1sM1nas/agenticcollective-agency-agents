@@ -20,6 +20,8 @@ interface RegisterInput {
   displayName: string;
 }
 
+type ExistingAccountHint = 'exists' | 'unknown';
+
 const PROFILE_COLUMNS =
   'id, display_name, age_verified, date_of_birth, team_affinity, favorite_players, xp_score, prediction_accuracy, collectibles_count';
 
@@ -57,8 +59,32 @@ async function getProfile(userId: string): Promise<ProfileRow | null> {
   return data as ProfileRow | null;
 }
 
+async function inferExistingAccountHint(email: string, password: string): Promise<ExistingAccountHint> {
+  const client = requireSupabase();
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+
+  if (data.user) {
+    await client.auth.signOut();
+    return 'exists';
+  }
+
+  if (!error) return 'unknown';
+
+  const normalizedMessage = error.message.toLowerCase();
+  if (normalizedMessage.includes('email not confirmed')) {
+    return 'exists';
+  }
+
+  return 'unknown';
+}
+
 export async function registerWithDatabase(input: RegisterInput): Promise<User> {
   const client = requireSupabase();
+  const existingAccountHint = await inferExistingAccountHint(input.email, input.password);
+
+  if (existingAccountHint === 'exists') {
+    throw new Error('An account with this email already exists. Try logging in or resetting your password.');
+  }
 
   const { data, error } = await client.auth.signUp({
     email: input.email,
@@ -73,10 +99,10 @@ export async function registerWithDatabase(input: RegisterInput): Promise<User> 
   if (error) {
     const normalizedMessage = error.message.toLowerCase();
     if (normalizedMessage.includes('already registered') || normalizedMessage.includes('already exists')) {
-      throw new Error('user with existing email address exists - unable to create account');
+      throw new Error('An account with this email already exists. Try logging in or resetting your password.');
     }
     if (normalizedMessage.includes('rate limit')) {
-      throw new Error('Too many signup attempts right now. Please wait a few minutes and try again.');
+      throw new Error('Too many signup attempts right now on this Supabase project. Please wait a few minutes and try again with the same email.');
     }
     if (normalizedMessage.includes('signups not allowed')) {
       throw new Error('New account registration is currently disabled on this project.');

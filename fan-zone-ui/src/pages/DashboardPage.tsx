@@ -37,7 +37,14 @@ export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
   const { items, fetchContent } = useFeed();
-  const { matches: feedMatches, isLoading: isFeedLoading, error: feedError } = useMatchFeed();
+  const {
+    matches: feedMatches,
+    isLoading: isFeedLoading,
+    isRefreshing: isFeedRefreshing,
+    error: feedError,
+    lastUpdated,
+    refresh: refreshFeed,
+  } = useMatchFeed();
 
   useEffect(() => {
     if (items.length === 0) fetchContent();
@@ -67,7 +74,7 @@ export const DashboardPage: React.FC = () => {
   const tickerMatches = liveTickerMatches.length > 0 ? liveTickerMatches : fallbackTickerMatches;
   const primaryLiveMatch = liveTickerMatches[0] ?? sortedFeedMatches[0];
 
-  const liveSourceLabel = isFeedLoading ? 'Syncing' : sortedFeedMatches.length > 0 ? 'API Feed' : 'Fallback';
+  const liveSourceLabel = isFeedLoading || isFeedRefreshing ? 'Syncing' : sortedFeedMatches.length > 0 ? 'API Feed' : 'Fallback';
   const liveSourceClass =
     liveSourceLabel === 'API Feed'
       ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-300'
@@ -102,8 +109,21 @@ export const DashboardPage: React.FC = () => {
           <div className="fz-live-glow rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-[#58ff83]">LIVE</div>
           <div className={`rounded-full border px-3 py-1 font-semibold ${liveSourceClass}`}>Data source: {liveSourceLabel}</div>
           {isFeedLoading && <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">Loading Premier League match feed...</div>}
+          {lastUpdated && (
+            <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">
+              Updated {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          )}
           {!isFeedLoading && tickerMatches.length === 0 && <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">No EPL matches in feed right now</div>}
           {!isFeedLoading && feedError && <div className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-amber-300">Match feed API unavailable</div>}
+          <button
+            type="button"
+            onClick={() => void refreshFeed()}
+            disabled={isFeedLoading || isFeedRefreshing}
+            className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 font-semibold text-slate-200 transition-colors hover:border-slate-400 hover:bg-[#1a1f34] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isFeedLoading || isFeedRefreshing ? 'Refreshing...' : 'Retry Feed'}
+          </button>
           {tickerMatches.map((match) => (
             <div key={match.id} className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-300">
               {match.homeTeam} <span className="text-[#4cff7f]">{match.homeScore}-{match.awayScore}</span> {match.awayTeam} • {formatTickerPhase(match)}

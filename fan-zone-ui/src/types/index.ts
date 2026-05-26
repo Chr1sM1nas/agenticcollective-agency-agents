@@ -21,6 +21,7 @@ export interface AuthState {
 
 export interface Prediction {
   id: string;
+  dbId?: string;
   matchId: string;
   homeTeam: string;
   awayTeam: string;
