@@ -15,7 +15,7 @@ export const Navbar: React.FC = () => {
   };
 
   // Only show nav links you want to keep (removing Dashboard, Collectibles, Leaderboard)
-  const navLinks = [
+  const navLinks: { to: string; label: string }[] = [
     // { to: '/dashboard', label: 'Dashboard' },
     // { to: '/collectibles', label: 'Collectibles' },
     // { to: '/leaderboard', label: 'Leaderboard' },

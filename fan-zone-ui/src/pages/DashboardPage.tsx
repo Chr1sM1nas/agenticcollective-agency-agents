@@ -245,7 +245,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="mt-8">
                   <h3 className="text-lg font-semibold mb-2 text-white">All Fixtures (Season)</h3>
                   <FixtureList
-                    fixtures={mockMatches}
+                    fixtures={sortedFeedMatches.length > 0 ? sortedFeedMatches : mockMatches}
                     onSelect={(fixture) => {
                       window.location.href = `/predictions?matchId=${encodeURIComponent(fixture.id)}`;
                     }}
