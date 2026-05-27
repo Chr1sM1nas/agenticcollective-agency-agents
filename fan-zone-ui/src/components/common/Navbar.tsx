@@ -14,17 +14,15 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
+  // Only show nav links you want to keep (removing Dashboard, Collectibles, Leaderboard)
   const navLinks = [
-    { to: '/dashboard', label: 'Dashboard' },
-    { to: '/predictions', label: 'Match Hub' },
-    { to: '/collectibles', label: 'Collectibles' },
-    { to: '/leaderboard', label: 'Leaderboard' },
+    // { to: '/dashboard', label: 'Dashboard' },
+    // { to: '/collectibles', label: 'Collectibles' },
+    // { to: '/leaderboard', label: 'Leaderboard' },
+    // { to: '/predictions', label: 'Match Hub' },
+    // Add any other links you want to keep here
   ];
-
-  // Remove the Predictions menu item (label or route)
-  const filteredNavLinks = navLinks.filter(
-    link => link.label !== 'Predictions' && link.to !== '/predictions'
-  );
+  const filteredNavLinks = navLinks;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[#24273b] bg-[#0d1020]/95 backdrop-blur-lg">

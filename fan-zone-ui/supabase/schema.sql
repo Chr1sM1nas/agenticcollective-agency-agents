@@ -1,3 +1,87 @@
+-- DROP ALL Fanzone TABLES, TRIGGERS, POLICIES, VIEWS (for a clean slate)
+-- Run this block first if you want to fully reset your schema (DANGEROUS: deletes all data!)
+
+-- Drop views
+DROP VIEW IF EXISTS public.leaderboard_current CASCADE;
+
+-- Drop triggers
+DROP TRIGGER IF EXISTS trg_profiles_updated_at ON public.profiles;
+DROP TRIGGER IF EXISTS trg_matches_updated_at ON public.matches;
+DROP TRIGGER IF EXISTS trg_predictions_updated_at ON public.predictions;
+DROP TRIGGER IF EXISTS trg_collectibles_updated_at ON public.collectibles;
+DROP TRIGGER IF EXISTS trg_user_collectibles_updated_at ON public.user_collectibles;
+DROP TRIGGER IF EXISTS trg_content_posts_updated_at ON public.content_posts;
+DROP TRIGGER IF EXISTS trg_polls_updated_at ON public.polls;
+DROP TRIGGER IF EXISTS trg_poll_options_updated_at ON public.poll_options;
+DROP TRIGGER IF EXISTS trg_poll_votes_updated_at ON public.poll_votes;
+DROP TRIGGER IF EXISTS trg_leaderboard_snapshots_updated_at ON public.leaderboard_snapshots;
+
+-- Drop policies
+DROP POLICY IF EXISTS "Profiles are readable by owner" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles are insertable by owner" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles are updatable by owner" ON public.profiles;
+DROP POLICY IF EXISTS "Matches are readable by anyone" ON public.matches;
+DROP POLICY IF EXISTS "Predictions are readable by owner" ON public.predictions;
+DROP POLICY IF EXISTS "Predictions are insertable by owner" ON public.predictions;
+DROP POLICY IF EXISTS "Predictions are updatable by owner" ON public.predictions;
+DROP POLICY IF EXISTS "Predictions are deletable by owner" ON public.predictions;
+DROP POLICY IF EXISTS "Collectibles are readable by anyone" ON public.collectibles;
+DROP POLICY IF EXISTS "User collectibles are readable by owner" ON public.user_collectibles;
+DROP POLICY IF EXISTS "User collectibles are insertable by owner" ON public.user_collectibles;
+DROP POLICY IF EXISTS "User collectibles are updatable by owner" ON public.user_collectibles;
+DROP POLICY IF EXISTS "Content posts are readable by anyone" ON public.content_posts;
+DROP POLICY IF EXISTS "Polls are readable by anyone" ON public.polls;
+DROP POLICY IF EXISTS "Poll options are readable by anyone" ON public.poll_options;
+DROP POLICY IF EXISTS "Poll votes are readable by owner" ON public.poll_votes;
+DROP POLICY IF EXISTS "Poll votes are insertable by owner" ON public.poll_votes;
+DROP POLICY IF EXISTS "Poll votes are updatable by owner" ON public.poll_votes;
+DROP POLICY IF EXISTS "Leaderboard snapshots are readable by anyone" ON public.leaderboard_snapshots;
+
+-- Drop tables (in dependency order: children first)
+DROP TABLE IF EXISTS public.poll_votes CASCADE;
+DROP TABLE IF EXISTS public.poll_options CASCADE;
+DROP TABLE IF EXISTS public.polls CASCADE;
+DROP TABLE IF EXISTS public.content_posts CASCADE;
+DROP TABLE IF EXISTS public.user_collectibles CASCADE;
+DROP TABLE IF EXISTS public.collectibles CASCADE;
+DROP TABLE IF EXISTS public.predictions CASCADE;
+DROP TABLE IF EXISTS public.matches CASCADE;
+DROP TABLE IF EXISTS public.leaderboard_snapshots CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
+
+-- Drop functions
+DROP FUNCTION IF EXISTS public.set_profiles_updated_at CASCADE;
+DROP FUNCTION IF EXISTS public.set_updated_at CASCADE;
+
+-- Drop extension (optional, only if you want to fully reset)
+-- DROP EXTENSION IF EXISTS pgcrypto CASCADE;
+
+-- Now run the rest of your schema.sql to recreate everything from scratch.
+
+-- -------------------
+-- END DROP BLOCK
+-- -------------------
+
+-- Drop all policies before any table or function definitions
+drop policy if exists "Profiles are readable by owner" on public.profiles;
+drop policy if exists "Profiles are insertable by owner" on public.profiles;
+drop policy if exists "Profiles are updatable by owner" on public.profiles;
+drop policy if exists "Matches are readable by anyone" on public.matches;
+drop policy if exists "Predictions are readable by owner" on public.predictions;
+drop policy if exists "Predictions are insertable by owner" on public.predictions;
+drop policy if exists "Predictions are updatable by owner" on public.predictions;
+drop policy if exists "Predictions are deletable by owner" on public.predictions;
+drop policy if exists "Collectibles are readable by anyone" on public.collectibles;
+drop policy if exists "User collectibles are readable by owner" on public.user_collectibles;
+drop policy if exists "User collectibles are insertable by owner" on public.user_collectibles;
+drop policy if exists "User collectibles are updatable by owner" on public.user_collectibles;
+drop policy if exists "Content posts are readable by anyone" on public.content_posts;
+drop policy if exists "Polls are readable by anyone" on public.polls;
+drop policy if exists "Poll options are readable by anyone" on public.poll_options;
+drop policy if exists "Poll votes are readable by owner" on public.poll_votes;
+drop policy if exists "Poll votes are insertable by owner" on public.poll_votes;
+drop policy if exists "Poll votes are updatable by owner" on public.poll_votes;
+drop policy if exists "Leaderboard snapshots are readable by anyone" on public.leaderboard_snapshots;
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   display_name text,
@@ -8,7 +92,6 @@ create table if not exists public.profiles (
   xp_score integer not null default 0,
   prediction_accuracy integer not null default 0,
   collectibles_count integer not null default 0,
-  created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
@@ -21,7 +104,6 @@ using (auth.uid() = id);
 
 create policy "Profiles are insertable by owner"
 on public.profiles
-for insert
 with check (auth.uid() = id);
 
 create policy "Profiles are updatable by owner"
@@ -32,7 +114,9 @@ using (auth.uid() = id);
 create or replace function public.set_profiles_updated_at()
 returns trigger
 language plpgsql
-as $$
+CREATE TRIGGER trg_leaderboard_snapshots_updated_at
+BEFORE UPDATE ON public.leaderboard_snapshots
+FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 begin
   new.updated_at = now();
   return new;
@@ -74,22 +158,18 @@ create table if not exists public.matches (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
 create table if not exists public.predictions (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users (id) on delete cascade,
   match_id uuid not null references public.matches (id) on delete cascade,
   prediction_type text not null check (prediction_type in ('match-result', 'correct-score', 'first-goalscorer', 'cards', 'possession')),
   prediction_value text not null,
   odds numeric(8, 3),
   xp_reward integer not null default 0,
-  status text not null default 'pending' check (status in ('pending', 'correct', 'incorrect')),
   resolved_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint uq_predictions_user_match_type unique (user_id, match_id, prediction_type)
 );
-
 create table if not exists public.collectibles (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -110,9 +190,6 @@ create table if not exists public.user_collectibles (
   user_id uuid not null references auth.users (id) on delete cascade,
   collectible_id uuid not null references public.collectibles (id) on delete cascade,
   source_prediction_id uuid references public.predictions (id) on delete set null,
-  acquired_at timestamptz not null default now(),
-  metadata jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint uq_user_collectibles_user_collectible unique (user_id, collectible_id)
 );
@@ -124,8 +201,6 @@ create table if not exists public.content_posts (
   description text,
   image_url text,
   video_url text,
-  author text not null,
-  published_at timestamptz not null default now(),
   likes_count integer not null default 0,
   comments_count integer not null default 0,
   is_age_gated boolean not null default false,
@@ -138,10 +213,6 @@ create table if not exists public.content_posts (
 create table if not exists public.polls (
   id uuid primary key default gen_random_uuid(),
   content_post_id uuid unique references public.content_posts (id) on delete set null,
-  question text not null,
-  is_active boolean not null default true,
-  closes_at timestamptz,
-  created_by uuid references auth.users (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -169,7 +240,6 @@ create table if not exists public.poll_votes (
 create table if not exists public.leaderboard_snapshots (
   id uuid primary key default gen_random_uuid(),
   scope text not null default 'global' check (scope in ('global', 'club', 'friends')),
-  user_id uuid not null references auth.users (id) on delete cascade,
   rank integer not null,
   xp_score integer not null,
   prediction_accuracy integer not null,
@@ -182,7 +252,6 @@ create table if not exists public.leaderboard_snapshots (
 create index if not exists idx_predictions_user_id on public.predictions (user_id);
 create index if not exists idx_predictions_match_id on public.predictions (match_id);
 create index if not exists idx_predictions_status on public.predictions (status);
-create index if not exists idx_user_collectibles_user_id on public.user_collectibles (user_id);
 create index if not exists idx_content_posts_type on public.content_posts (type);
 create index if not exists idx_content_posts_published_at on public.content_posts (published_at desc);
 create index if not exists idx_poll_options_poll_id on public.poll_options (poll_id);
@@ -200,7 +269,6 @@ create trigger trg_predictions_updated_at
 before update on public.predictions
 for each row execute function public.set_updated_at();
 
-drop trigger if exists trg_collectibles_updated_at on public.collectibles;
 create trigger trg_collectibles_updated_at
 before update on public.collectibles
 for each row execute function public.set_updated_at();
@@ -210,10 +278,6 @@ create trigger trg_user_collectibles_updated_at
 before update on public.user_collectibles
 for each row execute function public.set_updated_at();
 
-drop trigger if exists trg_content_posts_updated_at on public.content_posts;
-create trigger trg_content_posts_updated_at
-before update on public.content_posts
-for each row execute function public.set_updated_at();
 
 drop trigger if exists trg_polls_updated_at on public.polls;
 create trigger trg_polls_updated_at
@@ -232,13 +296,8 @@ for each row execute function public.set_updated_at();
 
 drop trigger if exists trg_leaderboard_snapshots_updated_at on public.leaderboard_snapshots;
 create trigger trg_leaderboard_snapshots_updated_at
-before update on public.leaderboard_snapshots
 for each row execute function public.set_updated_at();
 
-alter table public.matches enable row level security;
-alter table public.predictions enable row level security;
-alter table public.collectibles enable row level security;
-alter table public.user_collectibles enable row level security;
 alter table public.content_posts enable row level security;
 alter table public.polls enable row level security;
 alter table public.poll_options enable row level security;

@@ -20,6 +20,10 @@ export function useMatchFeed() {
     try {
       setError(null);
       const data = await fetchPremierLeagueMatchFeed();
+      // Debug: log the raw feed data
+      if (typeof window !== 'undefined') {
+        console.log('[FanZone] Raw match feed:', data);
+      }
       setMatches(data);
       setLastUpdated(new Date().toISOString());
     } catch (err) {

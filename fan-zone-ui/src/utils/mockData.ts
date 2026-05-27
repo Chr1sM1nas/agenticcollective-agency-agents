@@ -1,11 +1,22 @@
 import { ContentItem, Match, LeaderboardEntry, Collectible, Prediction, Poll } from '../types';
 
 export const mockMatches: Match[] = [
-  { id: 'm1', homeTeam: 'Arsenal', awayTeam: 'Chelsea', homeTeamEmoji: '🔴', awayTeamEmoji: '🔵', kickoff: '2025-06-15T15:00:00Z', competition: 'Premier League', status: 'upcoming' },
-  { id: 'm2', homeTeam: 'Liverpool', awayTeam: 'Man City', homeTeamEmoji: '🔴', awayTeamEmoji: '🔵', kickoff: '2025-06-15T17:30:00Z', competition: 'Premier League', status: 'upcoming' },
-  { id: 'm3', homeTeam: 'Spurs', awayTeam: 'Man United', homeTeamEmoji: '⚪', awayTeamEmoji: '🔴', kickoff: '2025-06-16T14:00:00Z', competition: 'Premier League', status: 'upcoming' },
-  { id: 'm4', homeTeam: 'Everton', awayTeam: 'Aston Villa', homeTeamEmoji: '🔵', awayTeamEmoji: '🟣', kickoff: '2025-06-16T16:00:00Z', competition: 'Premier League', status: 'upcoming' },
-  { id: 'm5', homeTeam: 'Newcastle', awayTeam: 'Brighton', homeTeamEmoji: '⚫', awayTeamEmoji: '🔵', kickoff: '2025-06-17T20:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  // Dummy Premier League fixtures from June to August 2026
+  { id: 'm1', homeTeam: 'Arsenal', awayTeam: 'Man City', homeTeamEmoji: '🔴', awayTeamEmoji: '🔵', kickoff: '2026-06-15T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm2', homeTeam: 'Chelsea', awayTeam: 'Liverpool', homeTeamEmoji: '🔵', awayTeamEmoji: '🔴', kickoff: '2026-06-16T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm3', homeTeam: 'Spurs', awayTeam: 'Everton', homeTeamEmoji: '⚪', awayTeamEmoji: '🔵', kickoff: '2026-06-17T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm4', homeTeam: 'Newcastle', awayTeam: 'Aston Villa', homeTeamEmoji: '⚫', awayTeamEmoji: '🟣', kickoff: '2026-06-18T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm5', homeTeam: 'Brighton', awayTeam: 'West Ham', homeTeamEmoji: '🔵', awayTeamEmoji: '⚒️', kickoff: '2026-06-19T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm6', homeTeam: 'Man United', awayTeam: 'Leeds', homeTeamEmoji: '🔴', awayTeamEmoji: '⚪', kickoff: '2026-06-20T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm7', homeTeam: 'Arsenal', awayTeam: 'Chelsea', homeTeamEmoji: '🔴', awayTeamEmoji: '🔵', kickoff: '2026-07-01T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm8', homeTeam: 'Liverpool', awayTeam: 'Spurs', homeTeamEmoji: '🔴', awayTeamEmoji: '⚪', kickoff: '2026-07-08T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm9', homeTeam: 'Man City', awayTeam: 'Newcastle', homeTeamEmoji: '🔵', awayTeamEmoji: '⚫', kickoff: '2026-07-15T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm10', homeTeam: 'Aston Villa', awayTeam: 'Brighton', homeTeamEmoji: '🟣', awayTeamEmoji: '🔵', kickoff: '2026-07-22T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm11', homeTeam: 'West Ham', awayTeam: 'Man United', homeTeamEmoji: '⚒️', awayTeamEmoji: '🔴', kickoff: '2026-07-29T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm12', homeTeam: 'Leeds', awayTeam: 'Arsenal', homeTeamEmoji: '⚪', awayTeamEmoji: '🔴', kickoff: '2026-08-05T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm13', homeTeam: 'Chelsea', awayTeam: 'Man City', homeTeamEmoji: '🔵', awayTeamEmoji: '🔵', kickoff: '2026-08-12T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm14', homeTeam: 'Everton', awayTeam: 'Liverpool', homeTeamEmoji: '🔵', awayTeamEmoji: '🔴', kickoff: '2026-08-19T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
+  { id: 'm15', homeTeam: 'Spurs', awayTeam: 'Aston Villa', homeTeamEmoji: '⚪', awayTeamEmoji: '🟣', kickoff: '2026-08-26T19:00:00Z', competition: 'Premier League', status: 'upcoming' },
 ];
 
 export const mockContent: ContentItem[] = [

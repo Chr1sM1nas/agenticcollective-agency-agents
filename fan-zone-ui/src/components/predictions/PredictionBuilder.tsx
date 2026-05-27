@@ -259,8 +259,19 @@ export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({
         </div>
       )}
 
+
       {step === 2 && selectedMatch && (
         <div>
+          <div className="mb-3 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <span>{selectedMatch.homeTeamEmoji}</span>
+              <span className="text-white font-semibold text-base">{selectedMatch.homeTeam}</span>
+              <span className="text-slate-400 text-xs font-medium">VS</span>
+              <span className="text-white font-semibold text-base">{selectedMatch.awayTeam}</span>
+              <span>{selectedMatch.awayTeamEmoji}</span>
+            </div>
+            <div className="text-xs text-slate-400">{formatMatchMeta(selectedMatch)}</div>
+          </div>
           <h3 className="text-white font-semibold mb-3">Prediction Type</h3>
           <div className="space-y-2 mb-4">
             {predictionTypes.map(pt => (
@@ -276,8 +287,17 @@ export const PredictionBuilder: React.FC<PredictionBuilderProps> = ({
 
       {step === 3 && selectedMatch && (
         <div>
+          <div className="mb-3 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <span>{selectedMatch.homeTeamEmoji}</span>
+              <span className="text-white font-semibold text-base">{selectedMatch.homeTeam}</span>
+              <span className="text-slate-400 text-xs font-medium">VS</span>
+              <span className="text-white font-semibold text-base">{selectedMatch.awayTeam}</span>
+              <span>{selectedMatch.awayTeamEmoji}</span>
+            </div>
+            <div className="text-xs text-slate-400">{formatMatchMeta(selectedMatch)}</div>
+          </div>
           <h3 className="text-white font-semibold mb-1">Your Prediction</h3>
-          <p className="text-slate-400 text-xs mb-4">{selectedMatch.homeTeam} vs {selectedMatch.awayTeam}</p>
           <div className="mb-4">{renderInput()}</div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/40 rounded-lg px-3 py-2">

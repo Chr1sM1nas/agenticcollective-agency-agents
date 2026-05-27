@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LEFT_NAV_ITEMS, getActiveLeftNavKey } from '../constants/navigation';
-import { Navbar } from '../components/common/Navbar';
+// import { Navbar } from '../components/common/Navbar';
 import { ProfileHeader } from '../components/profile/ProfileHeader';
 import { ActivityStats } from '../components/profile/ActivityStats';
 import { useAuth } from '../hooks/useAuth';
@@ -37,7 +37,7 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#07080f] text-slate-100">
-      <Navbar />
+      {/* <Navbar /> */}
       <section className="border-b border-[#23253a] bg-[#0f1326] px-3 py-2 sm:px-5">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-2 text-xs">
           <div className="rounded-full border border-[#2e3149] bg-[#14182d] px-3 py-1 text-slate-200">PROFILE</div>

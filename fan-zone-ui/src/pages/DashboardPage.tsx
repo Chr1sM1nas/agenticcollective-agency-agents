@@ -4,7 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useFeed } from '../hooks/useFeed';
 import { useMatchFeed } from '../hooks/useMatchFeed';
 import { LEFT_NAV_ITEMS, getActiveLeftNavKey } from '../constants/navigation';
-import { mockLeaderboard } from '../utils/mockData';
+import { mockLeaderboard, mockMatches, mockPredictions } from '../utils/mockData';
+import { FixtureList } from '../components/fixtures/FixtureList';
 import { Bolt, Medal } from 'lucide-react';
 import { Navbar } from '../components/common/Navbar';
 
@@ -88,7 +89,9 @@ export const DashboardPage: React.FC = () => {
       ? 'UP NEXT'
       : 'LATEST RESULT';
 
-  const xpCurrent = user?.xpScore ?? 2840;
+  // Calculate XP as sum of all correct predictions
+  const myXp = mockPredictions.filter(p => p.status === 'correct').reduce((acc, p) => acc + p.xpReward, 0);
+  const xpCurrent = myXp;
   const xpTarget = 4200;
   const xpPercent = Math.min(100, Math.round((xpCurrent / xpTarget) * 100));
   const accuracy = user?.predictionAccuracy ?? 68;
@@ -96,7 +99,11 @@ export const DashboardPage: React.FC = () => {
   const collectibles = user?.collectiblesCount ?? 12;
   const pendingPredictionCount = 3;
   const leaderboardTop = mockLeaderboard.slice(0, 4);
+  // Update leaderboard entry for current user
   const myEntry = mockLeaderboard.find((entry) => entry.userId === user?.id);
+  if (myEntry) {
+    myEntry.xpScore = myXp;
+  }
 
   const activeNavKey = getActiveLeftNavKey(location.pathname);
 
@@ -165,6 +172,7 @@ export const DashboardPage: React.FC = () => {
 
         <main className="space-y-4">
           <section>
+
             <div className="mb-2 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Match Hub</h2>
@@ -174,43 +182,75 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_320px]">
-              <div className="rounded-2xl border border-[#292d46] bg-gradient-to-br from-[#1a2144] via-[#251434] to-[#111a41] p-4 sm:p-5">
-                <div className="mb-5 flex items-center justify-between text-xs text-slate-300">
-                  <span className="fz-live-glow rounded-full bg-[#0d5f3b] px-2 py-1 font-semibold text-[#44f08c]">{primaryPanelLabel}</span>
-                  <span>{primaryLiveMatch?.league ?? 'Premier League · Matchday'}</span>
+              <div className="rounded-2xl border border-[#292d46] bg-gradient-to-br from-[#1a2144] via-[#251434] to-[#111a41] p-2 sm:p-3">
+                <div className="mb-3 flex items-center justify-between text-[11px] text-slate-300">
+                  <span className="fz-live-glow rounded-full bg-[#0d5f3b] px-2 py-0.5 font-semibold text-[#44f08c]">{primaryPanelLabel}</span>
+                  <span className="flex flex-col items-center">
+                    <span>{primaryLiveMatch?.league ?? 'Premier League · Matchday'}</span>
+                    {primaryLiveMatch?.kickoff && (
+                      <span className="text-[10px] text-slate-400 font-normal mt-0.5">
+                        {new Date(primaryLiveMatch.kickoff).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {' • '}
+                        {new Date(primaryLiveMatch.kickoff).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </span>
                   <span>{primaryLiveMatch?.venue ?? 'Stadium'}</span>
                 </div>
-                <div className="mb-6 grid grid-cols-3 items-center text-center">
+                <div className="mb-3 grid grid-cols-3 items-center text-center">
                   <div>
-                    <div className="mx-auto mb-2 h-6 w-6 rounded-full bg-[#ff273f]" />
-                    <div className="text-xl font-bold">{primaryLiveMatch?.homeTeam ?? 'Arsenal'}</div>
+                    <div className="mx-auto mb-1 h-5 w-5 rounded-full bg-[#ff273f]" />
+                    <div className="text-base font-bold">{primaryLiveMatch?.homeTeam ?? 'Arsenal'}</div>
                   </div>
                   <div>
-                    <div className="text-5xl font-extrabold tracking-tight">{primaryLiveMatch ? `${primaryLiveMatch.homeScore}-${primaryLiveMatch.awayScore}` : '2-1'}</div>
-                    <div className="text-sm text-[#59ff8b]">{primaryLiveMatch ? formatTickerPhase(primaryLiveMatch) : "67'"}</div>
+                    <div className="text-3xl font-extrabold tracking-tight">{primaryLiveMatch ? `${primaryLiveMatch.homeScore}-${primaryLiveMatch.awayScore}` : '2-1'}</div>
+                    <div className="text-xs text-[#59ff8b]">{primaryLiveMatch ? formatTickerPhase(primaryLiveMatch) : "67'"}</div>
                   </div>
                   <div>
-                    <div className="mx-auto mb-2 h-6 w-6 rounded-full bg-[#2d79ff]" />
-                    <div className="text-xl font-bold">{primaryLiveMatch?.awayTeam ?? 'Chelsea'}</div>
+                    <div className="mx-auto mb-1 h-5 w-5 rounded-full bg-[#2d79ff]" />
+                    <div className="text-base font-bold">{primaryLiveMatch?.awayTeam ?? 'Chelsea'}</div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <Link to={buildQuickPickPath(primaryLiveMatch?.id, 'home')} className="rounded-xl border border-[#ff294e] bg-[#491224] p-3 text-left transition-colors hover:border-[#ff5b78] hover:bg-[#5a192d]">
-                    <div className="text-[11px] uppercase text-slate-300">Home Win</div>
-                    <div className="text-2xl font-bold">{primaryLiveMatch?.homeTeam ?? 'Arsenal'}</div>
-                    <div className="text-sm font-semibold text-[#ffb63d]">2.10</div>
-                  </Link>
-                  <Link to={buildQuickPickPath(primaryLiveMatch?.id, 'draw')} className="rounded-xl border border-[#363a55] bg-[#20253e] p-3 text-left transition-colors hover:border-[#4a5072] hover:bg-[#262b45]">
-                    <div className="text-[11px] uppercase text-slate-400">Draw</div>
-                    <div className="text-2xl font-bold">-</div>
-                    <div className="text-sm font-semibold text-[#ffb63d]">3.40</div>
-                  </Link>
-                  <Link to={buildQuickPickPath(primaryLiveMatch?.id, 'away')} className="rounded-xl border border-[#363a55] bg-[#20253e] p-3 text-left transition-colors hover:border-[#4a5072] hover:bg-[#262b45]">
-                    <div className="text-[11px] uppercase text-slate-400">Away Win</div>
-                    <div className="text-2xl font-bold">{primaryLiveMatch?.awayTeam ?? 'Chelsea'}</div>
-                    <div className="text-sm font-semibold text-[#ffb63d]">4.20</div>
-                  </Link>
+                {/* Dynamic odds calculation for demo purposes */}
+                {(() => {
+                  const home = primaryLiveMatch?.homeTeam ?? 'Arsenal';
+                  const away = primaryLiveMatch?.awayTeam ?? 'Chelsea';
+                  // Simple odds logic: base + team name length diff
+                  const homeOdds = (2.0 + (home.length - away.length) * 0.05).toFixed(2);
+                  const drawOdds = 3.30;
+                  const awayOdds = (2.0 + (away.length - home.length) * 0.05).toFixed(2);
+                  return (
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      <Link to={buildQuickPickPath(primaryLiveMatch?.id, 'home')} className="rounded-xl border border-[#ff294e] bg-[#491224] p-3 text-left flex flex-col h-full transition-colors hover:border-[#ff5b78] hover:bg-[#5a192d]">
+                        <div className="text-[11px] uppercase text-slate-300">Home Win</div>
+                        <div className="text-2xl font-bold flex-1 flex items-center">{home}</div>
+                        <div className="text-sm font-semibold text-[#ffb63d] mt-auto">{homeOdds}</div>
+                      </Link>
+                      <Link to={buildQuickPickPath(primaryLiveMatch?.id, 'draw')} className="rounded-xl border border-[#363a55] bg-[#20253e] p-3 text-left flex flex-col h-full transition-colors hover:border-[#4a5072] hover:bg-[#262b45]">
+                        <div className="text-[11px] uppercase text-slate-400">Draw</div>
+                        <div className="text-2xl font-bold flex-1 flex items-center">-</div>
+                        <div className="text-sm font-semibold text-[#ffb63d] mt-auto">{drawOdds}</div>
+                      </Link>
+                      <Link to={buildQuickPickPath(primaryLiveMatch?.id, 'away')} className="rounded-xl border border-[#363a55] bg-[#20253e] p-3 text-left flex flex-col h-full transition-colors hover:border-[#4a5072] hover:bg-[#262b45]">
+                        <div className="text-[11px] uppercase text-slate-400">Away Win</div>
+                        <div className="text-2xl font-bold flex-1 flex items-center">{away}</div>
+                        <div className="text-sm font-semibold text-[#ffb63d] mt-auto">{awayOdds}</div>
+                      </Link>
+                    </div>
+                  );
+                })()}
+
+                {/* Fixture List directly below latest result panel */}
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold mb-2 text-white">All Fixtures (Season)</h3>
+                  <FixtureList
+                    fixtures={mockMatches}
+                    onSelect={(fixture) => {
+                      window.location.href = `/predictions?matchId=${encodeURIComponent(fixture.id)}`;
+                    }}
+                    predictedMatchIds={mockPredictions.map(p => p.matchId)}
+                  />
                 </div>
               </div>
 

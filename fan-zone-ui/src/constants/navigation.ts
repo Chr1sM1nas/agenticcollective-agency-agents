@@ -20,8 +20,8 @@ export interface LeftNavItem {
 }
 
 export const LEFT_NAV_ITEMS: LeftNavItem[] = [
-  { key: 'home-feed', label: 'Home Feed', to: '/dashboard', icon: Home, badge: '' },
-  { key: 'match-hub', label: 'Match Hub', to: '/predictions', icon: Circle, badge: 'LIVE' },
+  { key: 'home-feed', label: 'Match Hub', to: '/dashboard', icon: Home, badge: '' },
+  { key: 'match-hub', label: 'Match Predictions', to: '/predictions', icon: Circle, badge: 'LIVE' },
   { key: 'friend-leagues', label: 'Friend Leagues', to: '/leaderboard', icon: Users, badge: '' },
   { key: 'collectibles', label: 'Collectibles', to: '/collectibles', icon: Gem, badge: '2' },
   { key: 'live-drops', label: 'Live Drops', to: '/live-drops', icon: Flame, badge: '' },
