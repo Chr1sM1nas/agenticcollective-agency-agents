@@ -1,0 +1,57 @@
+:root { --ink: #24292b; --muted: #606b70; --line: #d4dcdd; --accent: #076b5c; --danger: #a23239; --paper: #fff; --canvas: #f3f6f7; }
+* { box-sizing: border-box; letter-spacing: 0; }
+body { margin: 0; color: var(--ink); background: var(--canvas); font-family: "Trebuchet MS", sans-serif; font-size: 15px; line-height: 1.5; }
+.masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 32px; border-bottom: 1px solid var(--line); background: var(--paper); }
+h1 { font-family: Georgia, serif; font-size: 25px; margin: 0; font-weight: 600; }
+.masthead p { color: var(--muted); margin: 3px 0 0; font-size: 13px; }
+.masthead strong { color: var(--accent); white-space: nowrap; }
+main { max-width: 1400px; margin: auto; padding: 26px 32px 60px; }
+.workspace { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 36px; }
+.brief { padding-right: 28px; border-right: 1px solid var(--line); }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h2 { font-size: 18px; margin: 0 0 14px; }
+h3 { font-size: 15px; margin: 14px 0 5px; }
+label { display: block; font-weight: 600; font-size: 13px; margin: 16px 0 5px; }
+input, textarea, select, button { font: inherit; max-width: 100%; border-radius: 4px; }
+input, textarea, select { width: 100%; border: 1px solid #a9b6bb; padding: 9px 10px; background: var(--paper); color: var(--ink); }
+textarea { resize: vertical; min-height: 70px; }
+button { border: 1px solid #a9b6bb; background: var(--paper); color: var(--ink); padding: 9px 13px; cursor: pointer; font-weight: 600; font-size: 13px; min-height: 38px; white-space: normal; overflow-wrap: anywhere; }
+button:hover:not(:disabled) { background: #e8efef; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.primary { color: white; border-color: var(--accent); background: var(--accent); }
+.primary:hover:not(:disabled) { background: #055347; }
+.danger { color: var(--danger); border-color: var(--danger); }
+:focus-visible { outline: 3px solid #b4731d; outline-offset: 3px; }
+#run-agency { width: 100%; margin: 20px 0 8px; }
+#progress { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-block: 1px solid var(--line); margin: 8px 0 24px; }
+#progress li { padding: 14px 12px 14px 0; min-height: 102px; overflow-wrap: anywhere; }
+#progress strong, #progress small, #progress span { display: block; }
+#progress strong { font-size: 12px; }
+#progress span { font-size: 13px; color: var(--muted); margin-top: 7px; }
+#progress .complete span { color: var(--accent); }
+#progress .running span { color: #926217; }
+#progress .failed span { color: var(--danger); }
+#progress small { font-size: 11px; color: var(--muted); margin-top: 5px; }
+#workflow-status { font-size: 12px; color: var(--muted); }
+#configuration, #error, #run-error { padding: 12px 15px; border-left: 3px solid #ac7a28; background: #fff9e9; margin-bottom: 22px; overflow-wrap: anywhere; }
+#error, #run-error { border-color: var(--danger); background: #fff0f0; }
+#usage { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+#outputs > section, #approval { padding: 22px 0; border-top: 1px solid var(--line); margin-top: 18px; overflow-wrap: anywhere; }
+#outputs p { white-space: pre-wrap; margin: 4px 0 10px; }
+#outputs ul { padding-left: 20px; }
+#outputs li { margin: 6px 0; }
+#outputs h2 { color: var(--accent); }
+#iteration-history details { border-top: 1px solid var(--line); padding: 12px 0; }
+#iteration-history summary { cursor: pointer; font-weight: 600; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.score { font-size: 15px; font-weight: 600; }
+[hidden] { display: none !important; }
+@media (max-width: 800px) {
+  .masthead { padding: 18px; align-items: flex-start; }
+  h1 { font-size: 20px; }
+  .masthead strong { font-size: 12px; }
+  main { padding: 20px 18px 40px; }
+  .workspace { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .brief { padding-right: 0; border-right: 0; }
+  #progress { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

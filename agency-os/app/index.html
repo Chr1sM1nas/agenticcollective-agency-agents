@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic Agency OS | Agency Zero</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/client.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div><h1>AGENTIC AGENCY OS</h1><p>Agentic Collective</p></div>
+    <strong>Agency Zero</strong>
+  </header>
+  <main>
+    <div id="configuration" role="status" hidden></div>
+    <div id="error" role="alert" hidden></div>
+    <div class="workspace">
+      <section class="brief">
+        <div class="section-heading"><h2>New Brief</h2><button id="load-example" type="button">Load Test Brief</button></div>
+        <form id="brief-form">
+          <label for="clientName">Client</label><input id="clientName" name="clientName" required maxlength="200" autocomplete="organization">
+          <label for="objective">Objective</label><textarea id="objective" name="objective" required maxlength="16000" rows="3"></textarea>
+          <label for="problemOpportunity">Problem / Opportunity</label><textarea id="problemOpportunity" name="problemOpportunity" required maxlength="16000" rows="4"></textarea>
+          <label for="requestedDeliverable">Requested Deliverable</label><textarea id="requestedDeliverable" name="requestedDeliverable" required maxlength="16000" rows="3"></textarea>
+          <label for="context">Context</label><textarea id="context" name="context" required maxlength="16000" rows="5"></textarea>
+          <button id="run-agency" class="primary" type="submit" disabled>RUN AGENCY</button>
+        </form>
+        <label for="history">Recent Workflows</label>
+        <select id="history"><option value="">Select a workflow</option></select>
+      </section>
+      <section class="workforce">
+        <div class="section-heading"><h2>AI Workforce</h2><span id="workflow-status">No workflow selected</span></div>
+        <ol id="progress" aria-live="polite"></ol>
+        <div id="run-error" role="status" hidden></div>
+        <div id="usage"></div>
+        <div id="outputs"></div>
+        <section id="approval" hidden>
+          <h2>Human Approval</h2>
+          <label for="feedback">Feedback</label>
+          <textarea id="feedback" rows="3" maxlength="16000"></textarea>
+          <div class="actions">
+            <button class="primary" data-decision="approve" type="button">APPROVE</button>
+            <button data-decision="request_changes" type="button">REQUEST CHANGES</button>
+            <button class="danger" data-decision="reject" type="button">REJECT</button>
+          </div>
+        </section>
+        <button id="download" type="button" hidden>Download Approved Result</button>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

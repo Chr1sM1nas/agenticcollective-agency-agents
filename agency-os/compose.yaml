@@ -1,0 +1,19 @@
+name: agency-zero
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: agency
+      POSTGRES_PASSWORD: agency_local
+      POSTGRES_DB: agency_zero
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - agency-zero-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agency -d agency_zero"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+volumes:
+  agency-zero-data:

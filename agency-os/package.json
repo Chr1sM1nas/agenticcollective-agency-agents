@@ -1,0 +1,33 @@
+{
+  "name": "agentic-agency-os",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:integration": "tsx --test tests/integration.test.ts",
+    "test:browser": "RUN_BROWSER_TESTS=1 tsx --test tests/browser.test.ts",
+    "test:live": "tsx scripts/test-live.ts",
+    "build": "npm run typecheck && esbuild app/client.ts --bundle --outfile=dist/public/client.js && esbuild api/server.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/server.js && cp app/index.html app/style.css dist/public/",
+    "dev": "npm run build && tsx api/server.ts",
+    "start": "node dist/server.js",
+    "db:migrate": "tsx database/migrate.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "fastify": "^5.6.0",
+    "openai": "^6.0.0",
+    "pg": "^8.16.3",
+    "yaml": "^2.8.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.5",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.55.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}
